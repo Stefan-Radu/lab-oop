@@ -1,15 +1,12 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
-class Node {
-public:
+struct Node {
 
   Node(int i = 0) {
     info = i;
     leftSon = rightSon = nullptr;
-  } // constructor
+  }
 
   ~Node() {
     if (leftSon) {
@@ -18,10 +15,10 @@ public:
     }
     if (rightSon) {
       delete rightSon;
-      leftSon = nullptr;
+      rightSon = nullptr;
     }
-    cerr << "Deleted the value " << info << ' ' << "in destructor\n";
-  } // destructor
+    std::cerr << "Deleted the value " << info << ' ' << "in destructor\n";
+  }
 
   int info;
   Node *leftSon, *rightSon;
@@ -39,30 +36,32 @@ public:
     root = nullptr;
   }
 
-  void operator + (int value) {
-    m_insert(value, root);
-  }
-
-  ABC& operator >> (int value) {
-    m_insert(value, root);
+  ABC& operator + (int value) {
+    _insert(value, root);
     return *this;
   }
 
-  void operator - (int value) {
-    m_findForErase(value, root);
+  ABC& operator >> (int value) {
+    _insert(value, root);
+    return *this;
+  }
+
+  ABC& operator - (int value) {
+    _findForErase(value, root);
+    return *this;
   }
 
   void erase(int value) {
-    m_findForErase(value, root);
+    _findForErase(value, root);
   }
 
   int getDepth() {
-    return m_getDepth(root);
+    return _getDepth(root);
   }
 
-  void printLeaves(ostream &out) {
+  void printLeaves(std::ostream &out) {
     out << "Leaves of the tree are: ";
-    m_printLeaves(root, out);
+    _printLeaves(root, out);
     out << "\n\n";
   }
 
@@ -70,76 +69,76 @@ private:
 
   Node *root;
 
-  void m_insert(int value, Node *&currentNode) {
+  void _insert(int value, Node *&currentNode) {
 
     if (not currentNode) {
       currentNode = new Node(value);
-      cerr << "Inserted the value " << value << '\n';
+      std::cerr << "Inserted the value " << value << '\n';
       return;
     }
 
     if (value <= currentNode -> info) {
-      m_insert(value, currentNode -> leftSon);
+      _insert(value, currentNode -> leftSon);
     }
     else {
-      m_insert(value, currentNode -> rightSon);
+      _insert(value, currentNode -> rightSon);
     }
   }
 
 
-  void m_inOrderPrint(Node *currentNode, ostream &out) {
+  void _inOrderPrint(Node *currentNode, std::ostream &out) {
 
     if (not currentNode) {
       return;
     }
 
-    m_inOrderPrint(currentNode -> leftSon, out);
+    _inOrderPrint(currentNode -> leftSon, out);
     out << currentNode -> info << ' ';
-    m_inOrderPrint(currentNode -> rightSon, out);
+    _inOrderPrint(currentNode -> rightSon, out);
   }
 
-  void m_preOrderPrint(Node *currentNode, ostream &out) {
+  void _preOrderPrint(Node *currentNode, std::ostream &out) {
 
     if (not currentNode) {
       return;
     }
 
     out << currentNode -> info << ' ';
-    m_preOrderPrint(currentNode -> leftSon, out);
-    m_preOrderPrint(currentNode -> rightSon, out);
+    _preOrderPrint(currentNode -> leftSon, out);
+    _preOrderPrint(currentNode -> rightSon, out);
   }
 
-  void m_postOrderPrint(Node *currentNode, ostream &out) {
+  void _postOrderPrint(Node *currentNode, std::ostream &out) {
 
     if (not currentNode) {
       return;
     }
 
-    m_postOrderPrint(currentNode -> leftSon, out);
-    m_postOrderPrint(currentNode -> rightSon, out);
+    _postOrderPrint(currentNode -> leftSon, out);
+    _postOrderPrint(currentNode -> rightSon, out);
     out << currentNode -> info << ' ';
   }
 
-  void m_findForErase(int value, Node *&currentNode) {
+  void _findForErase(int value, Node *&currentNode) {
 
     if (not currentNode) {
       return;
     }
 
     if (value < currentNode -> info) {
-      m_findForErase(value, currentNode -> leftSon);
+      _findForErase(value, currentNode -> leftSon);
       return;
     }
     if (value > currentNode -> info) {
-      m_findForErase(value, currentNode -> rightSon);
+      _findForErase(value, currentNode -> rightSon);
       return;
     }
 
-    cerr << "Planning to delete " << currentNode -> info << '\n';
-    m_erase(currentNode);
+    std::cerr << "Planning to delete " << currentNode -> info << '\n';
+    _erase(currentNode);
   }
 
-  void m_erase(Node *&currentNode) {
+  void _erase(Node *&currentNode) {
 
     if (not currentNode -> rightSon) {
       auto aux = currentNode -> leftSon;
@@ -154,19 +153,19 @@ private:
       nextNode = nextNode -> leftSon;
     }
 
-    swap(currentNode -> info, nextNode -> info);
+    std::swap(currentNode -> info, nextNode -> info);
     auto aux = nextNode -> rightSon;
     nextNode -> rightSon = nullptr;
     delete nextNode;
     nextNode = aux;
   }
 
-  int m_getDepth(Node *curNode) {
+  int _getDepth(Node *curNode) {
     if (not curNode) return -1;
-    return max(m_getDepth(curNode -> leftSon), m_getDepth(curNode -> rightSon)) + 1;
+    return std::max(_getDepth(curNode -> leftSon), _getDepth(curNode -> rightSon)) + 1;
   }
 
-  void m_printLeaves(Node *curNode, ostream &out) {
+  void _printLeaves(Node *curNode, std::ostream &out) {
 
     if (not curNode) return;
 
@@ -175,72 +174,67 @@ private:
       return;
     }
 
-    m_printLeaves(curNode -> leftSon, out);
-    m_printLeaves(curNode -> rightSon, out);
+    _printLeaves(curNode -> leftSon, out);
+    _printLeaves(curNode -> rightSon, out);
   }
 
-  friend ostream& operator << (ostream &os, ABC &abc);
+  friend std::ostream& operator << (std::ostream &os, ABC &abc);
 };
 
-ostream& operator << (ostream &os, ABC &abc) {
+std::ostream& operator << (std::ostream &os, ABC &abc) {
   os << "\nIn order print:\n";
-  abc.m_inOrderPrint(abc.root, os);
+  abc._inOrderPrint(abc.root, os);
   os << "\n\nPreorder print:\n";
-  abc.m_preOrderPrint(abc.root, os);
+  abc._preOrderPrint(abc.root, os);
   os << "\n\nPostorder print:\n";
-  abc.m_postOrderPrint(abc.root, os);
+  abc._postOrderPrint(abc.root, os);
   os << '\n';
   return os;
 }
 
+void insertTestV1(ABC &abc) {
+  abc + 5 + 2 + 8 + 10 + 9;
+  abc + 1 + 3 + 2 + 2 + 14;
+  std::cerr << abc << '\n';
+  std::cerr << "Depth of the tree is " << abc.getDepth() << "\n\n";
+  abc.printLeaves(std::cerr);
+}
+
+void insertTestV2(ABC &abc) {
+  abc >> 5 >> 2 >> 8 >> 10 >> 9;
+  abc >> 1 >> 3 >> 2 >> 2 >> 14;
+  std::cerr << abc << '\n';
+  std::cerr << "Depth of the tree is " << abc.getDepth() << "\n\n";
+  abc.printLeaves(std::cerr);
+}
+
+void eraseTest1(ABC &abc) {
+  abc.erase(10);
+  abc.erase(5);
+  abc.erase(2);
+  abc.erase(3);
+  abc.erase(14);
+  abc.erase(8);
+  std::cerr << abc << '\n';
+  std::cerr << "Depth of the tree is " << abc.getDepth() << "\n\n";
+  abc.printLeaves(std::cerr);
+}
+
+void eraseTest2(ABC &abc) {
+  abc - 10 - 5 - 2 - 3 - 14 - 8;
+  std::cerr << abc << '\n';
+  std::cerr << "Depth of the tree is " << abc.getDepth() << "\n\n";
+  abc.printLeaves(std::cerr);
+}
+
+void runTests(ABC &abc) {
+  /* insertTestV1(abc); */
+  insertTestV2(abc);
+  /* eraseTest1(abc); */
+  eraseTest1(abc);
+}
 
 int main() {
-
   ABC abc;
-
-  // testing insert;
-
-  /* abc + 5; */
-  /* abc + 2; */
-  /* abc + 8; */
-  /* abc + 10; */
-  /* abc + 9; */
-  /* abc + 1; */
-  /* abc + 3; */
-  /* abc + 2; */
-  /* abc + 2; */
-
-  // testing overloaded insert
-
-  abc >> 5 >> 2 >> 8 >> 10 >> 9 >> 1 >> 3 >> 2 >> 2;
-
-  // testing print function
-
-  cerr << abc << '\n';
-
-  // testing erase
-
-  /* abc.erase(10); */
-  /* cerr << abc << '\n'; */
-  /* abc.erase(5); */
-  /* cerr << abc << '\n'; */
-  /* abc.erase(2); */
-  /* cerr << abc << '\n'; */
-
-  // testing erase with overload
-
-  abc - 10;
-  cerr << abc << '\n';
-  abc - 5;
-  cerr << abc << '\n';
-  abc - 2;
-  cerr << abc << '\n';
-
-  // testing depth function
-
-  cerr << "Depth of the tree is " << abc.getDepth() << "\n\n";
-
-  // test print leaves function
-
-  abc.printLeaves(cerr);
+  runTests(abc);
 }
