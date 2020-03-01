@@ -29,7 +29,7 @@ public:
 
   ABC() {
     root = nullptr;
-  } // constructor
+  }
   
   ~ABC() {
     delete root;
