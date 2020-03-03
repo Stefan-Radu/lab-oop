@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <cassert>
 
 struct Node {
 
@@ -43,7 +44,7 @@ public:
   }
 
   ABC& operator - (int value) {
-    erase(value, root);
+    erase(value);
     return *this;
   }
 
@@ -184,46 +185,39 @@ std::ostream& operator << (std::ostream &os, ABC &abc) {
   return os;
 }
 
-void insertTestV1(ABC &abc) {
-  abc + 5 + 2 + 8 + 10 + 9;
-  abc + 1 + 3 + 2 + 2 + 14;
+void insertTest(ABC &abc) {
+
+  abc + 5 + 2;
+  assert(abc.getDepth() == 1);
+  abc + 8 + 10 + 9;
+  assert(abc.getDepth() == 3);
+  abc + 1 + 3 + 2;
+  assert(abc.getDepth() == 3);
+  abc + 2 + 14;
+  assert(abc.getDepth() == 4);
+
   std::cerr << abc << '\n';
   std::cerr << "Depth of the tree is " << abc.getDepth() << "\n\n";
   abc.printLeaves(std::cerr);
 }
 
-void insertTestV2(ABC &abc) {
-  abc >> 5 >> 2 >> 8 >> 10 >> 9;
-  abc >> 1 >> 3 >> 2 >> 2 >> 14;
-  std::cerr << abc << '\n';
-  std::cerr << "Depth of the tree is " << abc.getDepth() << "\n\n";
-  abc.printLeaves(std::cerr);
-}
+void eraseTest(ABC &abc) {
 
-void eraseTest1(ABC &abc) {
-  abc.erase(10);
-  abc.erase(5);
-  abc.erase(2);
-  abc.erase(3);
-  abc.erase(14);
-  abc.erase(8);
-  std::cerr << abc << '\n';
-  std::cerr << "Depth of the tree is " << abc.getDepth() << "\n\n";
-  abc.printLeaves(std::cerr);
-}
+  abc - 2;
+  assert(abc.getDepth() == 4);
+  abc - 10 - 5 - 2;
+  assert(abc.getDepth() == 3);
+  abc - 3 - 14 - 8;
+  assert(abc.getDepth() == 2);
 
-void eraseTest2(ABC &abc) {
-  abc - 10 - 5 - 2 - 3 - 14 - 8;
   std::cerr << abc << '\n';
   std::cerr << "Depth of the tree is " << abc.getDepth() << "\n\n";
   abc.printLeaves(std::cerr);
 }
 
 void runTests(ABC &abc) {
-  /* insertTestV1(abc); */
-  insertTestV2(abc);
-  /* eraseTest1(abc); */
-  eraseTest1(abc);
+  insertTest(abc);
+  eraseTest(abc);
 }
 
 int main() {
