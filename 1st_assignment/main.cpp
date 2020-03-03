@@ -33,7 +33,7 @@ public:
   }
 
   ABC& operator + (int value) {
-    _insert(value, root);
+    insert(value, root);
     return *this;
   }
 
@@ -43,21 +43,21 @@ public:
   }
 
   ABC& operator - (int value) {
-    _erase(value, root);
+    erase(value, root);
     return *this;
   }
 
   void erase(int value) {
-    _erase(value, root);
+    erase(value, root);
   }
 
   int getDepth() {
-    return _getDepth(root);
+    return getDepth(root);
   }
 
   void printLeaves(std::ostream &out) {
     out << "Leaves of the tree are: ";
-    _printLeaves(root, out);
+    printLeaves(root, out);
     out << "\n\n";
   }
 
@@ -65,7 +65,7 @@ private:
 
   Node *root;
 
-  void _insert(int value, Node *&currentNode) {
+  void insert(int value, Node *&currentNode) {
 
     if (not currentNode) {
       currentNode = new Node(value);
@@ -74,59 +74,59 @@ private:
     }
 
     if (value <= currentNode -> info) {
-      _insert(value, currentNode -> leftSon);
+      insert(value, currentNode -> leftSon);
     }
     else {
-      _insert(value, currentNode -> rightSon);
+      insert(value, currentNode -> rightSon);
     }
   }
 
 
-  void _inOrderPrint(Node *currentNode, std::ostream &out) const {
+  void inOrderPrint(Node *currentNode, std::ostream &out) const {
 
     if (not currentNode) {
       return;
     }
 
-    _inOrderPrint(currentNode -> leftSon, out);
+    inOrderPrint(currentNode -> leftSon, out);
     out << currentNode -> info << ' ';
-    _inOrderPrint(currentNode -> rightSon, out);
+    inOrderPrint(currentNode -> rightSon, out);
   }
 
-  void _preOrderPrint(Node *currentNode, std::ostream &out) const {
+  void preOrderPrint(Node *currentNode, std::ostream &out) const {
 
     if (not currentNode) {
       return;
     }
 
     out << currentNode -> info << ' ';
-    _preOrderPrint(currentNode -> leftSon, out);
-    _preOrderPrint(currentNode -> rightSon, out);
+    preOrderPrint(currentNode -> leftSon, out);
+    preOrderPrint(currentNode -> rightSon, out);
   }
 
-  void _postOrderPrint(Node *currentNode, std::ostream &out) const {
+  void postOrderPrint(Node *currentNode, std::ostream &out) const {
 
     if (not currentNode) {
       return;
     }
 
-    _postOrderPrint(currentNode -> leftSon, out);
-    _postOrderPrint(currentNode -> rightSon, out);
+    postOrderPrint(currentNode -> leftSon, out);
+    postOrderPrint(currentNode -> rightSon, out);
     out << currentNode -> info << ' ';
   }
 
-  void _erase(int value, Node *&currentNode) {
+  void erase(int value, Node *&currentNode) {
 
     if (not currentNode) {
       return;
     }
 
     if (value < currentNode -> info) {
-      _erase(value, currentNode -> leftSon);
+      erase(value, currentNode -> leftSon);
       return;
     }
     if (value > currentNode -> info) {
-      _erase(value, currentNode -> rightSon);
+      erase(value, currentNode -> rightSon);
       return;
     }
 
@@ -152,12 +152,12 @@ private:
     nextNode = aux;
   }
 
-  int _getDepth(Node *curNode) const {
+  int getDepth(Node *curNode) const {
     if (not curNode) return -1;
-    return std::max(_getDepth(curNode -> leftSon), _getDepth(curNode -> rightSon)) + 1;
+    return std::max(getDepth(curNode -> leftSon), getDepth(curNode -> rightSon)) + 1;
   }
 
-  void _printLeaves(Node *curNode, std::ostream &out) const {
+  void printLeaves(Node *curNode, std::ostream &out) const {
 
     if (not curNode) return;
 
@@ -166,8 +166,8 @@ private:
       return;
     }
 
-    _printLeaves(curNode -> leftSon, out);
-    _printLeaves(curNode -> rightSon, out);
+    printLeaves(curNode -> leftSon, out);
+    printLeaves(curNode -> rightSon, out);
   }
 
   friend std::ostream& operator << (std::ostream &os, ABC &abc);
@@ -175,11 +175,11 @@ private:
 
 std::ostream& operator << (std::ostream &os, ABC &abc) {
   os << "\nIn order print:\n";
-  abc._inOrderPrint(abc.root, os);
+  abc.inOrderPrint(abc.root, os);
   os << "\n\nPreorder print:\n";
-  abc._preOrderPrint(abc.root, os);
+  abc.preOrderPrint(abc.root, os);
   os << "\n\nPostorder print:\n";
-  abc._postOrderPrint(abc.root, os);
+  abc.postOrderPrint(abc.root, os);
   os << '\n';
   return os;
 }
