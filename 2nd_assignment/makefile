@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic
+CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic -Wfatal-errors
 
 main: main.o Game.o Creature.o
 	$(CXX) $(CXXFLAGS) -o main main.o Game.o Creature.o
