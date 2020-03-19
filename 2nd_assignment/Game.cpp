@@ -10,7 +10,7 @@ Game::Game(int w, int h, int preyPerc, int predatorPerc):
   initMap();
   generateCreatures();
 
-  window.create(sf::VideoMode(WIDTH, HEIGHT), "Predator & Prey");
+  window.create(sf::VideoMode(WIDTH * MULTIPLYER, HEIGHT * MULTIPLYER), "Predator & Prey");
 }
 
 void Game::initMap() {
@@ -92,32 +92,31 @@ void Game::updateState() {
   swap(predatorMap, predatorMapAux);
 }
 
-void Game::display() const {
+void Game::display() {
 
-  /* std::system("clear"); */
+  window.clear(sf::Color::Black);
+  for (int i = 0; i < HEIGHT; ++ i) {
+    for (int j = 0; j < WIDTH; ++ j) {
+      
+      int preyCnt = (int) preyMap[i][j].size();
+      int predatorCnt = (int) predatorMap[i][j].size();
 
-  /* for (int i = 0; i < HEIGHT; ++ i) { */
-  /*   for (int j = 0; j < WIDTH; ++ j) { */
+      if (preyCnt + predatorCnt == 0) continue;
 
-  /*     int preyCnt = (int) preyMap[i][j].size(); */
-  /*     int predatorCnt = (int) predatorMap[i][j].size(); */
+      sf::RectangleShape point(sf::Vector2f(MULTIPLYER, MULTIPLYER));
+      point.setPosition(j * MULTIPLYER, i * MULTIPLYER);
+      if (preyCnt > predatorCnt) {
+        point.setFillColor(sf::Color::Green);
+      }
+      else {
+        point.setFillColor(sf::Color::Red);
+      }
 
-  /*     if (preyCnt + predatorCnt == 0) { */
-  /*       std::cout << "  "; */
-  /*     } */
-  /*     else if (preyCnt and predatorCnt) { */
-  /*       if (rand() % 2) std::cout << "# "; */
-  /*       else std::cout << "@ "; */
-  /*     } */
-  /*     else if (predatorCnt) { */
-  /*       std::cout << "# "; */
-  /*     } */
-  /*     else { */
-  /*       std::cout << "@ "; */
-  /*     } */
-  /*   } */
-  /*   std::cout << std::endl; */
-  /* } */
+      window.draw(point);
+    }
+  }
+
+  window.display();
 }
 
 void Game::run() {
@@ -133,6 +132,5 @@ void Game::run() {
 
     updateState();
     display();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 }

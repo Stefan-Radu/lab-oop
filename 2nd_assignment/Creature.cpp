@@ -35,7 +35,7 @@ std::ostream& operator << (std::ostream &os, const Vec2D &v) {
 Creature::Creature(int h, Vec2D pos): health(h), position(pos) {}  
 
 bool Creature::isAlive() const {
-  return health != 0;
+  return health > 0;
 }
 
 int Creature::getHealth() const {
@@ -71,7 +71,7 @@ void Prey::updateHealth() {
 }
 
 bool Prey::canReproduce() const {
-  return health == MAX_HEALTH;
+  return health >= MAX_HEALTH;
 }
 
 void Prey::resetHealth() {
@@ -91,7 +91,7 @@ Predator& Predator:: operator = (const Predator &other) {
 }
 
 void Predator::updateHealth() {
-  health -= HEALTH_TIC;
+  health = std::max(0, health - (int) HEALTH_TIC);
 }
 
 void Predator::updateHealth(int toAdd) {
@@ -99,5 +99,5 @@ void Predator::updateHealth(int toAdd) {
 }
 
 bool Predator::canReproduce() const {
-  return health == MAX_HEALTH;
+  return health >= MAX_HEALTH;
 }
