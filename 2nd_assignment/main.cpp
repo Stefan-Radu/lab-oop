@@ -1,11 +1,10 @@
-#include "Creature.hpp"
 #include <iostream>
 #include <fstream>
+#include "Game.hpp"
+#include "Creature.hpp"
 
 int main () {
-
-  Vec2D v1(2, 3), v2;
-  std::cout << v1 << '\n' << v2 << std::endl;
-
-  return 0;
+  Game *g = new Game(720, 480, 50, 50);
+  g -> run();
+  delete g;
 }
