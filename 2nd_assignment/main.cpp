@@ -3,6 +3,9 @@
 #include <fstream>
 
 int main () {
-  Vec2D v(2, 3);
-  std::cerr << v;
+
+  Vec2D v1(2, 3), v2;
+  std::cout << v1 << '\n' << v2 << std::endl;
+
+  return 0;
 }
