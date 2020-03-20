@@ -14,7 +14,7 @@ struct Vec2D {
 
   int i, j;
 
-  static Vec2D getRandomVec2D(); // for moving a creature 1 step up / down/ left / right
+  static Vec2D getRandomWay(); // for moving a creature 1 step up / down/ left / right
 };
 
 std::ostream& operator << (std::ostream&, const Vec2D&);

@@ -19,7 +19,7 @@ void Vec2D::operator += (const Vec2D &other) {
   this -> j += other.j;
 }
 
-Vec2D Vec2D::getRandomVec2D() {
+Vec2D Vec2D::getRandomWay() {
   auto aux = Vec2D(rand() % 3 - 1, rand() % 3 - 1);
   return aux;
 }
