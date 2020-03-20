@@ -17,18 +17,22 @@ public:
 private:
 
   struct Cell {
-    std::vector < Prey > prey;
-    std::vector < Predator > predators;
+    Cell();
+    ~Cell();
+    Prey *prey;
+    Predator *predators;
   };
+
+  int preyCnt, predatorCnt;
 
   sf::RenderWindow window;
 
   const int WIDTH, HEIGHT;
-  static const int MAX_PREY_PER_CELL = 3;
-  static const int MULTIPLYER = 4;
+  static const int THRESHOLD = 1, CHANCE_MODULO = 1000;
   const int PREY_PERCENTAGE, PREDATOR_PERCENTAGE; // out of 100
 
   Cell *world, *worldAux;
+  sf::Vertex *pixels;
 
   void initWorld();
   void generateCreatures();
@@ -42,4 +46,6 @@ private:
   Vec2D get2DPos(const int&) const; 
   int get1DPos(const Vec2D&) const; 
   int get1DPos(const int&, const int&) const; 
+
+  Vec2D constrain(Vec2D);
 };
