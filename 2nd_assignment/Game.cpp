@@ -87,8 +87,8 @@ void Game::display() {
   for (int i = 0; i < HEIGHT; ++ i) {
     for (int j = 0; j < WIDTH; ++ j) {
       
-      int preyCnt = (int) preyMap[i][j].size();
-      int predatorCnt = (int) predatorMap[i][j].size();
+      int preyCnt = (int) world[get1DPos(i, j)].prey.size();
+      int predatorCnt = (int) world[get1DPos(i, j)].predators.size();
 
       if (preyCnt + predatorCnt == 0) continue;
 
@@ -130,6 +130,10 @@ Vec2D Game::get2DPos(const int &cell) const {
 
 int Game::get1DPos(const Vec2D &pos) const {
   return pos.i * WIDTH + pos.j;
+};
+
+int Game::get1DPos(const int &i, const int &j) const {
+  return i * WIDTH + j;
 };
 
 Game::~Game() {

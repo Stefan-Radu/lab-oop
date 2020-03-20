@@ -39,6 +39,7 @@ private:
 
   void display();
 
-  Vec2D get2DPos(const int &cell) const; 
-  int get1DPos(const Vec2D &pos) const; 
+  Vec2D get2DPos(const int&) const; 
+  int get1DPos(const Vec2D&) const; 
+  int get1DPos(const int&, const int&) const; 
 };
