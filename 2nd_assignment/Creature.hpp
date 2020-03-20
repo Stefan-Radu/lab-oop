@@ -31,7 +31,7 @@ public:
 private:
 
   static const int MAX_HEALTH = 20;
-  static const int HEALTH_TIC = 5;
+  static const int HEALTH_TIC = 1;
 };
 
 class Predator: public Creature {
@@ -47,6 +47,6 @@ public:
 
 private:
 
-  static const int MAX_HEALTH = 30;
-  static const int HEALTH_TIC = 5;
+  static const int MAX_HEALTH = 50;
+  static const int HEALTH_TIC = 1;
 };

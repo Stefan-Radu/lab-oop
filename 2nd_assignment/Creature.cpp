@@ -23,7 +23,7 @@ Prey& Prey:: operator = (const Prey &other) {
 }
 
 void Prey::updateHealth() {
-  health = std::min(health + HEALTH_TIC, (int) MAX_HEALTH);
+  health += HEALTH_TIC;
 }
 
 bool Prey::canReproduce() const {
@@ -45,7 +45,7 @@ Predator& Predator:: operator = (const Predator &other) {
 }
 
 void Predator::updateHealth() {
-  health = std::max(0, health - (int) HEALTH_TIC);
+  health -= HEALTH_TIC;
 }
 
 void Predator::updateHealth(int toAdd) {
