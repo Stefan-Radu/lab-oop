@@ -1,8 +1,10 @@
 #pragma once
 
-#include <vector>
-#include "Creature.hpp"
 #include <SFML/Graphics.hpp>
+#include <vector>
+
+#include "Vec2D.hpp"
+#include "Creature.hpp"
 
 class Game {
 public:
@@ -30,6 +32,13 @@ private:
 
   void initWorld();
   void generateCreatures();
+
+  void updatePreyState();
+  void updatePredatorState();
   void updateState();
+
   void display();
+
+  Vec2D get2DPos(const int &cell) const; 
+  int get1DPos(const Vec2D &pos) const; 
 };

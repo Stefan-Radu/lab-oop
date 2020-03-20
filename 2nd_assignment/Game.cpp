@@ -19,67 +19,66 @@ void Game::initWorld() {
 }
 
 void Game::generateCreatures() {
+  for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell ) {
+    int chance = rand() % 100;
+    if (chance < PREY_PERCENTAGE) {
+      world[cell].prey.emplace_back();
+    }
+    else if (chance < PREY_PERCENTAGE + PREDATOR_PERCENTAGE) {
+      world[cell].predators.emplace_back();
+    }
+  }
+}
 
-  for (int i = 0; i < HEIGHT; ++ i) {
-    for (int j = 0; j < WIDTH; ++ j) {
+void Game::updatePreyState() {
 
-      int chance = rand() % 100;
-      if (chance < PREY_PERCENTAGE) {
-        preyMap[i][j].push_back(Prey());
+  for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell) {
+
+    Vec2D curPos = get2DPos(cell);
+    for (auto &prey : world[cell].prey) {
+      prey.updateHealth();
+      int newPos = get1DPos(curPos + Vec2D::getRandomWay());
+      if (prey.canReproduce()) {
+        prey.resetHealth();
+        worldAux[newPos].prey.emplace_back();
       }
-      else if (chance < PREY_PERCENTAGE + PREDATOR_PERCENTAGE) {
-        predatorMap[i][j].push_back(Predator());
+      worldAux[newPos].prey.emplace_back(prey);
+    }
+
+    // clear for next frame
+    world[cell].prey.clear();
+  }
+}
+
+void Game::updatePredatorState() {
+
+  for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell) {
+
+    Vec2D curPos = get2DPos(cell);
+    for (auto &predator : world[cell].predators) {
+      predator.updateHealth();
+      int newPos = get1DPos(curPos + Vec2D::getRandomWay());
+      
+      // try to eat prey
+      if (not worldAux[newPos].prey.empty()) {
+        auto prey = worldAux[newPos].prey.back();
+        worldAux[newPos].prey.pop_back();
+        predator.updateHealth(prey.getHealth());
+        if (predator.canReproduce()) {
+          worldAux[newPos].predators.emplace_back();
+        }
       }
+      worldAux[newPos].predators.emplace_back(predator);
     }
   }
 }
 
 void Game::updateState() {
 
-  for (int i = 0; i < HEIGHT; ++ i) {
-    for (int j = 0; j < WIDTH; ++ j) {
-      for (auto &prey : cell) {
-        prey.updateHealth();
-        prey.updatePosition(HEIGHT, WIDTH);
-        auto newPos = prey.getPosition();
+  updatePreyState();
+  updatePredatorState();
 
-        if (prey.canReproduce() and (int) preyMapAux[newPos.i][newPos.j].size() - 1 < MAX_PREY_PER_CELL) {
-          prey.resetHealth();
-          preyMapAux[newPos.i][newPos.j].push_back(Prey(newPos));
-        }
-        preyMapAux[newPos.i][newPos.j].push_back(prey);
-      }
-      cell.clear();
-    }
-  }
-
-  for (auto &line : predatorMap) {
-    for (auto &cell : line) {
-      for (auto &predator : cell) {
-        predator.updateHealth();
-        if (predator.isAlive()) {
-          predator.updatePosition(HEIGHT, WIDTH);
-          auto newPos = predator.getPosition();
-
-          // try to eat prey
-          if (not preyMapAux[newPos.i][newPos.j].empty()) {
-            auto prey = preyMapAux[newPos.i][newPos.j].back();
-            preyMapAux[newPos.i][newPos.j].pop_back();
-            predator.updateHealth(prey.getHealth());
-            if (predator.canReproduce()) {
-              predatorMapAux[newPos.i][newPos.j].push_back(Predator(newPos));
-            }
-          }
-          predatorMapAux[newPos.i][newPos.j].push_back(predator);
-        }
-      }
-
-      cell.clear();
-    }
-  }
-
-  swap(preyMap, preyMapAux);
-  swap(predatorMap, predatorMapAux);
+  std::swap(world, worldAux);
 }
 
 void Game::display() {
@@ -124,6 +123,14 @@ void Game::run() {
     display();
   }
 }
+
+Vec2D Game::get2DPos(const int &cell) const {
+  return Vec2D(cell / WIDTH, cell % WIDTH);
+}
+
+int Game::get1DPos(const Vec2D &pos) const {
+  return pos.i * WIDTH + pos.j;
+};
 
 Game::~Game() {
   delete [] world;
