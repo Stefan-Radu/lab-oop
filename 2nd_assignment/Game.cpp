@@ -7,25 +7,15 @@ Game::Game(int w, int h, int preyPerc, int predatorPerc):
 
   srand(time(0));
 
-  initMap();
+  initWorld();
   generateCreatures();
 
   window.create(sf::VideoMode(WIDTH * MULTIPLYER, HEIGHT * MULTIPLYER), "Predator & Prey");
 }
 
-void Game::initMap() {
-
-  preyMap.resize(HEIGHT);
-  preyMapAux.resize(HEIGHT);
-  predatorMap.resize(HEIGHT);
-  predatorMapAux.resize(HEIGHT);
-
-  for (int i = 0; i < HEIGHT; ++ i) {
-    preyMap[i].resize(WIDTH);
-    preyMapAux[i].resize(WIDTH);
-    predatorMap[i].resize(WIDTH);
-    predatorMapAux[i].resize(WIDTH);
-  }
+void Game::initWorld() {
+  world = new Cell[WIDTH * HEIGHT];
+  worldAux = new Cell[WIDTH * HEIGHT];
 }
 
 void Game::generateCreatures() {
@@ -35,10 +25,10 @@ void Game::generateCreatures() {
 
       int chance = rand() % 100;
       if (chance < PREY_PERCENTAGE) {
-        preyMap[i][j].push_back(Prey(Vec2D(i, j)));
+        preyMap[i][j].push_back(Prey());
       }
       else if (chance < PREY_PERCENTAGE + PREDATOR_PERCENTAGE) {
-        predatorMap[i][j].push_back(Predator(Vec2D(i, j)));
+        predatorMap[i][j].push_back(Predator());
       }
     }
   }
@@ -46,8 +36,8 @@ void Game::generateCreatures() {
 
 void Game::updateState() {
 
-  for (auto &line : preyMap) {
-    for (auto &cell : line) {
+  for (int i = 0; i < HEIGHT; ++ i) {
+    for (int j = 0; j < WIDTH; ++ j) {
       for (auto &prey : cell) {
         prey.updateHealth();
         prey.updatePosition(HEIGHT, WIDTH);
@@ -133,4 +123,9 @@ void Game::run() {
     updateState();
     display();
   }
+}
+
+Game::~Game() {
+  delete [] world;
+  delete [] worldAux;
 }

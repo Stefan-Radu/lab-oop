@@ -8,10 +8,16 @@ class Game {
 public:
 
   Game(int, int, int, int);
+  ~Game();
 
   void run();
 
 private:
+
+  struct Cell {
+    std::vector < Prey > prey;
+    std::vector < Predator > predators;
+  };
 
   sf::RenderWindow window;
 
@@ -20,10 +26,9 @@ private:
   static const int MULTIPLYER = 4;
   const int PREY_PERCENTAGE, PREDATOR_PERCENTAGE; // out of 100
 
-  std::vector < std::vector < std::vector < Prey > > > preyMap, preyMapAux; 
-  std::vector < std::vector < std::vector < Predator > > > predatorMap, predatorMapAux; 
+  Cell *world, *worldAux;
 
-  void initMap();
+  void initWorld();
   void generateCreatures();
   void updateState();
   void display();
