@@ -3,6 +3,7 @@
 //==================================================  Creature  ==================================================
 
 Creature::Creature(int h): health(h) {}  
+Creature::~Creature() {}
 
 bool Creature::isAlive() const {
   return health > 0;
@@ -23,7 +24,11 @@ Prey& Prey:: operator = (const Prey &other) {
 }
 
 void Prey::updateHealth() {
-  health += HEALTH_TIC;
+  health = std::min(health + HEALTH_TIC, (int) MAX_HEALTH);
+}
+
+void Prey::updateHealth(int toAdd) {
+  health += toAdd;
 }
 
 bool Prey::canReproduce() const {
@@ -37,6 +42,7 @@ void Prey::resetHealth() {
 //==================================================  Predator  ==================================================
 
 Predator::Predator(): Creature(MAX_HEALTH) {}
+Predator::Predator(int h): Creature(std::min(h, (int) MAX_HEALTH)) {}
 Predator::Predator(const Predator& predator): Creature(predator.health) {}
 
 Predator& Predator:: operator = (const Predator &other) {
@@ -49,7 +55,16 @@ void Predator::updateHealth() {
 }
 
 void Predator::updateHealth(int toAdd) {
-  health = std::max(health + toAdd, (int) MAX_HEALTH);
+  health += toAdd;
+}
+
+int Predator::getExtraHealth() {
+  if (health >= MAX_HEALTH) {
+    int ret = health - MAX_HEALTH + 1;
+    health = MAX_HEALTH;
+    return ret;
+  }
+  return 0;
 }
 
 bool Predator::canReproduce() const {

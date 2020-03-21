@@ -6,8 +6,10 @@ class Creature {
 public:
 
   Creature(int);
+  virtual ~Creature() = 0;
 
   virtual void updateHealth() = 0;
+  virtual void updateHealth(int) = 0;
 
   bool isAlive() const; 
   int getHealth() const;
@@ -26,27 +28,30 @@ public:
 
   bool canReproduce() const override;
   void updateHealth() override;
+  void updateHealth(int) override;
   void resetHealth();
 
 private:
 
-  static const int MAX_HEALTH = 20;
-  static const int HEALTH_TIC = 1;
+  static const int MAX_HEALTH = 50;
+  static const int HEALTH_TIC = 7;
 };
 
 class Predator: public Creature {
 public:
 
   Predator();
+  Predator(int);
   Predator(const Predator&);
   Predator& operator = (const Predator&);
 
   bool canReproduce() const override;
   void updateHealth() override;
-  void updateHealth(int);
+  void updateHealth(int) override;
+  int getExtraHealth();
 
 private:
 
-  static const int MAX_HEALTH = 50;
-  static const int HEALTH_TIC = 1;
+  static const int MAX_HEALTH = 30;
+  static const int HEALTH_TIC = 3;
 };
