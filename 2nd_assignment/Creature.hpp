@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-static int mutate(int k);
+int mutate(int k);
 
 class Creature {
 public:
