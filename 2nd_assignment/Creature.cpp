@@ -1,5 +1,9 @@
 #include "Creature.hpp"
 
+int mutate(int k) {
+  return k + rand() % 3 + 1;
+}
+
 //==================================================  Creature  ==================================================
 
 Creature::Creature(int h): health(h) {}  
@@ -15,20 +19,17 @@ int Creature::getHealth() const {
 
 //==================================================  Prey  ==================================================
 
-Prey::Prey(): Creature(1) {}
-Prey::Prey(const Prey& prey): Creature(prey.health) {}
-
-Prey& Prey:: operator = (const Prey &other) {
-  health = other.health;
-  return *this;
-}
+Prey::Prey(int mh, int ht):
+  Creature(1), MAX_HEALTH(mh), HEALTH_TIC(mutate(ht)) {}
+Prey::Prey(const Prey& prey):
+  Creature(prey.health), MAX_HEALTH(prey.MAX_HEALTH), HEALTH_TIC(mutate(prey.HEALTH_TIC)) {}
 
 void Prey::updateHealth() {
   health = std::min(health + HEALTH_TIC, (int) MAX_HEALTH);
 }
 
 void Prey::updateHealth(int toAdd) {
-  health += toAdd;
+  health = std::min(health + toAdd, (int) MAX_HEALTH);
 }
 
 bool Prey::canReproduce() const {
@@ -41,32 +42,15 @@ void Prey::resetHealth() {
 
 //==================================================  Predator  ==================================================
 
-Predator::Predator(): Creature(MAX_HEALTH) {}
-Predator::Predator(int h): Creature(std::min(h, (int) MAX_HEALTH)) {}
-Predator::Predator(const Predator& predator): Creature(predator.health) {}
-
-Predator& Predator:: operator = (const Predator &other) {
-  health = other.health;
-  return *this;
-}
+Predator::Predator(int mh, int ht):
+  Creature(mh), MAX_HEALTH(mh), HEALTH_TIC(ht) {}
+Predator::Predator(const Predator& predator):
+  Creature(predator.health), MAX_HEALTH(predator.MAX_HEALTH), HEALTH_TIC(predator.HEALTH_TIC) {}
 
 void Predator::updateHealth() {
   health -= HEALTH_TIC;
 }
 
 void Predator::updateHealth(int toAdd) {
-  health += toAdd;
-}
-
-int Predator::getExtraHealth() {
-  if (health >= MAX_HEALTH) {
-    int ret = health - MAX_HEALTH + 1;
-    health = MAX_HEALTH;
-    return ret;
-  }
-  return 0;
-}
-
-bool Predator::canReproduce() const {
-  return health >= MAX_HEALTH;
+  health = std::min(health + toAdd, (int) MAX_HEALTH);
 }

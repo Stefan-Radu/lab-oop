@@ -2,18 +2,19 @@
 
 #include <iostream>
 
+static int mutate(int k);
+
 class Creature {
 public:
 
+  Creature();
   Creature(int);
   virtual ~Creature() = 0;
 
   virtual void updateHealth() = 0;
-  virtual void updateHealth(int) = 0;
 
   bool isAlive() const; 
   int getHealth() const;
-  virtual bool canReproduce() const = 0;
 
 protected:
   int health;
@@ -22,36 +23,31 @@ protected:
 class Prey: public Creature {
 public:
 
-  Prey();
+  Prey(int mh = 10, int ht = 1);
   Prey(const Prey&);
-  Prey& operator = (const Prey&);
 
-  bool canReproduce() const override;
+  bool canReproduce() const;
   void updateHealth() override;
-  void updateHealth(int) override;
+  void updateHealth(int);
   void resetHealth();
 
 private:
 
-  static const int MAX_HEALTH = 50;
-  static const int HEALTH_TIC = 7;
+  const int MAX_HEALTH;
+  const int HEALTH_TIC;
 };
 
 class Predator: public Creature {
 public:
 
-  Predator();
-  Predator(int);
+  Predator(int mh = 10, int ht = 1);
   Predator(const Predator&);
-  Predator& operator = (const Predator&);
 
-  bool canReproduce() const override;
   void updateHealth() override;
-  void updateHealth(int) override;
-  int getExtraHealth();
+  void updateHealth(int);
 
 private:
 
-  static const int MAX_HEALTH = 30;
-  static const int HEALTH_TIC = 3;
+  const int MAX_HEALTH;
+  const int HEALTH_TIC;
 };
