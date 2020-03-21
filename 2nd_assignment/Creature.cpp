@@ -6,11 +6,19 @@ int mutate(int k) {
 
 //==================================================  Creature  ==================================================
 
-Creature::Creature(int h): health(h) {}  
+Creature::Creature(int h, bool i): health(h), ill(i) {}  
 Creature::~Creature() {}
 
 bool Creature::isAlive() const {
   return health > 0;
+}
+
+bool Creature::isIll() const {
+  return ill;
+}
+
+void Creature::makeIll() {
+  ill = true;
 }
 
 int Creature::getHealth() const {
@@ -20,12 +28,13 @@ int Creature::getHealth() const {
 //==================================================  Prey  ==================================================
 
 Prey::Prey(int mh, int ht):
-  Creature(1), MAX_HEALTH(mh), HEALTH_TIC(mutate(ht)) {}
+  Creature(1, false), MAX_HEALTH(mh), HEALTH_TIC(mutate(ht)) {}
 Prey::Prey(const Prey& prey):
-  Creature(prey.health), MAX_HEALTH(prey.MAX_HEALTH), HEALTH_TIC(mutate(prey.HEALTH_TIC)) {}
+  Creature(prey.health, prey.ill), MAX_HEALTH(prey.MAX_HEALTH), HEALTH_TIC(mutate(prey.HEALTH_TIC)) {}
 
 void Prey::updateHealth() {
-  health = std::min(health + HEALTH_TIC, (int) MAX_HEALTH);
+  if (ill) health = health -= HEALTH_TIC;
+  else health = std::min(health + HEALTH_TIC, (int) MAX_HEALTH);
 }
 
 void Prey::updateHealth(int toAdd) {
@@ -43,12 +52,13 @@ void Prey::resetHealth() {
 //==================================================  Predator  ==================================================
 
 Predator::Predator(int mh, int ht):
-  Creature(mh), MAX_HEALTH(mh), HEALTH_TIC(ht) {}
+  Creature(mh, false), MAX_HEALTH(mh), HEALTH_TIC(ht) {}
 Predator::Predator(const Predator& predator):
-  Creature(predator.health), MAX_HEALTH(predator.MAX_HEALTH), HEALTH_TIC(predator.HEALTH_TIC) {}
+  Creature(predator.health, predator.ill), MAX_HEALTH(predator.MAX_HEALTH), HEALTH_TIC(predator.HEALTH_TIC) {}
 
 void Predator::updateHealth() {
-  health -= HEALTH_TIC;
+  if (ill) health -= 3 * HEALTH_TIC;
+  else health -= HEALTH_TIC;
 }
 
 void Predator::updateHealth(int toAdd) {

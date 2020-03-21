@@ -8,16 +8,19 @@ class Creature {
 public:
 
   Creature();
-  Creature(int);
+  Creature(int, bool);
   virtual ~Creature() = 0;
 
   virtual void updateHealth() = 0;
 
   bool isAlive() const; 
+  bool isIll() const;
+  void makeIll();
   int getHealth() const;
 
 protected:
   int health;
+  bool ill;
 };
 
 class Prey: public Creature {
