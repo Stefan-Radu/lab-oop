@@ -20,8 +20,8 @@ void Vec2D::operator += (const Vec2D &other) {
 }
 
 Vec2D Vec2D::getRandomWay() {
-  auto aux = Vec2D(rand() % 3 - 1, rand() % 3 - 1);
-  return aux;
+  int chance = rand() % 4;
+  return Vec2D(dirI[chance], dirJ[chance]);
 }
 
 std::ostream& operator << (std::ostream &os, const Vec2D &v) {
