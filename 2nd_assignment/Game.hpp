@@ -9,7 +9,10 @@
 class Game {
 public:
 
-  Game(int, int, int, int);
+  Game();
+  Game(int, int);
+  Game(int, int, int, int, int, int);
+
   ~Game();
 
   void run();
@@ -27,15 +30,20 @@ private:
 
   sf::RenderWindow window;
 
-  const int WIDTH, HEIGHT;
+  static const int WIDTH = 800, HEIGHT = 600;
   static const int CHANCE_MODULO = 1000;
-  const int PREY_PERCENTAGE, PREDATOR_PERCENTAGE; // out of 100
+  const int PREY_PERCENTAGE, PREDATOR_PERCENTAGE; // out of 1000
+
+  const Prey* const defaultPrey;
+  const Predator* const defaultPredator;
 
   Cell *world, *worldAux;
   sf::Vertex *pixels;
 
   void initWorld();
+  void initPixels();
   void generateCreatures();
+  void initEverything();
 
   void updatePreyState();
   void updatePredatorState();
