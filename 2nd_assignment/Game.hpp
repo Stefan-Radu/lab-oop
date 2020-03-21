@@ -20,7 +20,7 @@ private:
     Cell();
     ~Cell();
     Prey *prey;
-    Predator *predators;
+    Predator *predator;
   };
 
   int preyCnt, predatorCnt;
@@ -28,7 +28,7 @@ private:
   sf::RenderWindow window;
 
   const int WIDTH, HEIGHT;
-  static const int THRESHOLD = 1, CHANCE_MODULO = 1000;
+  static const int CHANCE_MODULO = 1000;
   const int PREY_PERCENTAGE, PREDATOR_PERCENTAGE; // out of 100
 
   Cell *world, *worldAux;
@@ -39,6 +39,7 @@ private:
 
   void updatePreyState();
   void updatePredatorState();
+  void eatPrey();
   void updateState();
 
   void display();
