@@ -1,37 +1,40 @@
-#include <thread>
-#include <chrono>
 #include "Game.hpp"
+#include <chrono>
 
 //========================================= Initialization =====================
 
 Game::Game():
   PREY_PERCENTAGE(10), PREDATOR_PERCENTAGE(10),
   defaultPrey(new Prey()), defaultPredator(new Predator()) {
-
   initEverything();
 }
 
 Game::Game(int preyPerc, int predatorPerc):
   PREY_PERCENTAGE(preyPerc), PREDATOR_PERCENTAGE(predatorPerc),
   defaultPrey(new Prey()), defaultPredator(new Predator()) {
-
   initEverything();
 }
 
 Game::Game(int preyPerc, int predatorPerc, int mh1, int ht1, int mh2, int ht2):
   PREY_PERCENTAGE(preyPerc), PREDATOR_PERCENTAGE(predatorPerc),
   defaultPrey(new Prey(mh1, ht1)), defaultPredator(new Predator(mh2, ht2)) {
-
   initEverything();
 }
 
 void Game::initEverything() {
+
+  srand(time(0));
+
+  endGame = false;
   preyCnt = predatorCnt = 0;
+
   initWorld();
   initPixels();
   generateCreatures();
-  window.create(sf::VideoMode(WIDTH, HEIGHT), "Predator & Prey");
-  window.setFramerateLimit(60);
+
+  window.create(sf::VideoMode(WIDTH << 1, HEIGHT << 1), "Predator & Prey");
+  window.setFramerateLimit(30);
+  window.setVerticalSyncEnabled(true);
 }
 
 void Game::initWorld() {
@@ -40,18 +43,15 @@ void Game::initWorld() {
 }
 
 void Game::initPixels() {
-  pixels = new sf::Vertex[WIDTH * HEIGHT];
-  for (int i = 0; i < HEIGHT; ++ i) {
-    for (int j = 0; j < WIDTH; ++ j) {
-      pixels[get1DPos(i, j)].position = sf::Vector2f(j, i);
+  pixels = new sf::Vertex[WIDTH * HEIGHT << 2];
+  for (int i = 0; i < (HEIGHT << 1); ++ i) {
+    for (int j = 0; j < (WIDTH << 1); ++ j) {
+      pixels[i * (WIDTH << 1) + j].position = sf::Vector2f(j, i);
     }
   }
 }
 
 void Game::generateCreatures() {
-
-  srand(time(0));
-
   for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell ) {
     int chance = rand() % CHANCE_MODULO;
     if (chance < PREY_PERCENTAGE) {
@@ -73,38 +73,44 @@ void Game::updatePreyState() {
 
     if (not world[cell].prey) continue;
 
-    int curPos = cell;
-    auto prey = world[cell].prey;
+    Prey *&prey = world[cell].prey;
+
     prey -> updateHealth();
 
     if (not prey -> isAlive()) {
       delete prey;
       -- preyCnt;
-      world[cell].predator = nullptr;
+      prey = nullptr;
       continue;
     }
 
-    int newPos = get1DPos(constrain(get2DPos(curPos) + Vec2D::getRandomWay()));
+    if (endGame and rand() % CHANCE_MODULO < ILLNESS_CHANCE) prey -> makeIll();
+
+    int newPos = get1DPos(constrain(get2DPos(cell) + Vec2D::getRandomWay()));
+
+    for (int i = 0; i < NEW_POS_TRIES_THRESHOLD and worldAux[newPos].prey; ++ i) {
+      newPos = get1DPos(constrain(get2DPos(cell) + Vec2D::getRandomWay()));
+    }
 
     if (not worldAux[newPos].prey) {
       worldAux[newPos].prey = prey;
-      if (prey -> canReproduce() and not worldAux[curPos].prey) {
+      if (not worldAux[cell].prey and prey -> canReproduce()) {
         prey -> resetHealth();
         ++ preyCnt;
-        worldAux[curPos].prey = new Prey(*defaultPrey);
+        worldAux[cell].prey = new Prey(*defaultPrey);
       }
     }
-    else if (not worldAux[curPos].prey) {
-      worldAux[curPos].prey = prey;
+    else if (not worldAux[cell].prey) {
+      worldAux[cell].prey = prey;
     }
     else {
       // il pierd asa ca ii transfer viata
-      world[curPos].prey -> updateHealth(prey -> getHealth());
+      worldAux[cell].prey -> updateHealth(prey -> getHealth());
       -- preyCnt;
       delete prey;
     }
     
-    world[curPos].prey = nullptr;
+    prey = nullptr;
   }
 }
 
@@ -114,54 +120,55 @@ void Game::updatePredatorState() {
 
     if (not world[cell].predator) continue;
 
-
-    int curPos = cell;
-    auto predator = world[cell].predator;
+    Predator *&predator = world[cell].predator;
     predator -> updateHealth();
 
     if (not predator -> isAlive()) {
       delete predator;
       -- predatorCnt;
-      world[cell].predator = nullptr;
+      predator = nullptr;
       continue;
     }
 
-    int newPos = get1DPos(constrain(get2DPos(curPos) + Vec2D::getRandomWay()));
-    
+    int newPos = get1DPos(constrain(get2DPos(cell) + Vec2D::getRandomWay()));
+    for (int i = 0; i < NEW_POS_TRIES_THRESHOLD and worldAux[newPos].predator; ++ i) {
+      newPos = get1DPos(constrain(get2DPos(cell) + Vec2D::getRandomWay()));
+    }
+
     if (not worldAux[newPos].predator) {
 
       worldAux[newPos].predator = predator;
       if (worldAux[newPos].prey) {
 
-        predator -> updateHealth(worldAux[newPos].prey -> getHealth());
         -- preyCnt;
+        predator -> updateHealth(worldAux[newPos].prey -> getHealth());
+
         delete worldAux[newPos].prey;
         worldAux[newPos].prey = nullptr;
 
-        if (not worldAux[curPos].predator) {
+        if (not worldAux[cell].predator) {
           ++ predatorCnt;
-          worldAux[curPos].predator = new Predator(*defaultPredator);
+          worldAux[cell].predator = new Predator(*defaultPredator);
         }
       }
     }
-    else if (not worldAux[curPos].predator) {
-      worldAux[curPos].predator = predator;
-      if (worldAux[curPos].prey) {
-        predator -> updateHealth(worldAux[curPos].prey -> getHealth());
+    else if (not worldAux[cell].predator) {
+      worldAux[cell].predator = predator;
+      if (worldAux[cell].prey) {
         -- preyCnt;
-        delete worldAux[curPos].prey;
-        worldAux[curPos].prey = nullptr;
+        predator -> updateHealth(worldAux[cell].prey -> getHealth());
+        delete worldAux[cell].prey;
+        worldAux[cell].prey = nullptr;
       }
     }
     else {
       // il pierd, deci fac transfer de viata
-      worldAux[curPos].predator -> updateHealth(predator -> getHealth());
       -- predatorCnt;
+      worldAux[cell].predator -> updateHealth(predator -> getHealth());
       delete predator;
     }
-
     // clear for next frame
-    world[cell].predator = nullptr;
+    predator = nullptr;
   }
 }
 
@@ -173,36 +180,59 @@ void Game::updateState() {
   std::swap(world, worldAux);
 }
 
+void Game::colorPixel(int &i, int &j, const sf::Color &color) {
+  pixels[(i << 1) * (WIDTH << 1) + (j << 1)].color = color;
+  pixels[(i << 1) * (WIDTH << 1) + (j << 1 | 1)].color = color;
+  pixels[(i << 1 | 1) * (WIDTH << 1) + (j << 1)].color = color;
+  pixels[(i << 1 | 1) * (WIDTH << 1) + (j << 1 | 1)].color = color;
+}
+
 void Game::display() {
 
   for (int i = 0; i < HEIGHT; ++ i) {
     for (int j = 0; j < WIDTH; ++ j) {
       
-      bool isPrey = world[get1DPos(i, j)].prey;
-      bool isPredator = world[get1DPos(i, j)].predator;
+      const auto prey = world[get1DPos(i, j)].prey;
+      const auto predator = world[get1DPos(i, j)].predator;
 
-      if ((isPrey or isPredator) == false) {
-        pixels[get1DPos(i, j)].color = sf::Color::Black;
+      if ((prey or predator) == false) {
+        colorPixel(i, j, sf::Color::Black);
         continue;
       }
 
-      if (isPrey) {
-        pixels[get1DPos(i, j)].color = sf::Color::Green;
+      if (prey) {
+        if(prey -> isIll()) colorPixel(i, j, sf::Color::Yellow);
+        else colorPixel(i, j, sf::Color::Green);
       }
       else {
-        pixels[get1DPos(i, j)].color = sf::Color::Red;
+        if (predator -> isIll()) colorPixel(i, j, sf::Color::Magenta);
+        else colorPixel(i, j, sf::Color::Red);
       }
     }
   }
 
   window.clear();
-  window.draw(pixels, WIDTH * HEIGHT, sf::Points);
+  window.draw(pixels, WIDTH * HEIGHT << 2, sf::Points);
   window.display();
 }
 
 void Game::run() {
 
-  while (window.isOpen() and preyCnt + predatorCnt > 0) {
+  auto startTime = std::chrono::high_resolution_clock::now();
+
+  while (window.isOpen()) {
+
+    if (not endGame) {
+
+      auto currentTime = std::chrono::high_resolution_clock::now();
+      auto diff = std::chrono::duration_cast < std::chrono::seconds > (currentTime - startTime);
+
+      if (diff.count() > END_GAME_THRESHOLD){
+        defaultPrey -> makeIll();
+        defaultPredator -> makeIll();
+        endGame = true;
+      }
+    }
 
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -213,6 +243,8 @@ void Game::run() {
 
     updateState();
     display();
+
+    if (predatorCnt + preyCnt == 0) window.close();
   }
 }
 
