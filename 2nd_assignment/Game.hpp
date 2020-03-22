@@ -53,7 +53,6 @@ private:
   void updatePreyState();
   void updatePredatorState();
   void updateState();
-  void spreadIllness(); 
 
   void colorPixel(int&, int&, const sf::Color&);
   void display();
