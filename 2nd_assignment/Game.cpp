@@ -7,7 +7,7 @@
 const sf::Color Game::GREEN(180, 255, 14, 50);
 const sf::Color Game::RED(217, 31, 39, 50);
 const sf::Color Game::PURPLE(201, 0, 184, 50);
-const sf::Color Game::ORANGE(201, 154, 0, 20);
+const sf::Color Game::ORANGE(201, 154, 0, 50);
 const sf::Color Game::CLEAR(0, 0, 0, 15);
 
 Game::Game():
