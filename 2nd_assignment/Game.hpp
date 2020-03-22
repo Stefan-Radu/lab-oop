@@ -39,11 +39,14 @@ private:
   static const sf::Color ORANGE;
   static const sf::Color CLEAR;
 
+  const int PREY_PERCENTAGE, PREDATOR_PERCENTAGE;
+
   static const int ILLNESS_CHANCE = 7;
   static const int WIDTH = 720, HEIGHT = 480;
   static const int NEW_POS_TRIES_THRESHOLD = 4;
+
   static constexpr double END_GAME_THRESHOLD = 15.0;
-  const int PREY_PERCENTAGE, PREDATOR_PERCENTAGE;
+  static constexpr double NO_CREATURES_THRESOLD = 1.0;
 
   Prey* const defaultPrey;
   Predator* const defaultPredator;

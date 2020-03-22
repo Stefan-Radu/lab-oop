@@ -1,12 +1,13 @@
 #include "Game.hpp"
 #include <chrono>
+#include <thread>
 
 //========================================= Initialization =====================
 
-const sf::Color Game::GREEN(180, 255, 14, 255);
-const sf::Color Game::RED(217, 31, 39, 255);
-const sf::Color Game::PURPLE(201, 0, 184, 255);
-const sf::Color Game::ORANGE(201, 154, 0, 255);
+const sf::Color Game::GREEN(180, 255, 14, 50);
+const sf::Color Game::RED(217, 31, 39, 50);
+const sf::Color Game::PURPLE(201, 0, 184, 50);
+const sf::Color Game::ORANGE(201, 154, 0, 20);
 const sf::Color Game::CLEAR(0, 0, 0, 15);
 
 Game::Game():
@@ -223,6 +224,10 @@ void Game::display() {
 
 void Game::run() {
 
+  window.clear();
+  window.display();
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
   auto startTime = std::chrono::high_resolution_clock::now();
 
   while (window.isOpen()) {
@@ -239,6 +244,11 @@ void Game::run() {
       }
     }
 
+    if (predatorCnt + preyCnt == 0) {
+      -- preyCnt;
+      startTime = std::chrono::high_resolution_clock::now();
+    }
+
     sf::Event event;
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
@@ -249,8 +259,16 @@ void Game::run() {
     updateState();
     display();
 
-    if (predatorCnt + preyCnt == 0) window.close();
+    if (preyCnt == -1) {
+      auto currentTime = std::chrono::high_resolution_clock::now();
+      auto diff = std::chrono::duration_cast < std::chrono::seconds > (currentTime - startTime);
+      if (diff.count() > NO_CREATURES_THRESOLD) {
+        window.close();
+      }
+    }
   }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(700));
 }
 
 Vec2D Game::get2DPos(const int &cell) const {
