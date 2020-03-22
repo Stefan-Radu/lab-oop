@@ -33,6 +33,12 @@ private:
 
   sf::RenderWindow window;
 
+  static const sf::Color RED;
+  static const sf::Color GREEN;
+  static const sf::Color PURPLE;
+  static const sf::Color ORANGE;
+  static const sf::Color CLEAR;
+
   static const int ILLNESS_CHANCE = 7;
   static const int WIDTH = 720, HEIGHT = 480;
   static const int NEW_POS_TRIES_THRESHOLD = 4;

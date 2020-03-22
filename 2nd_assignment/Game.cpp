@@ -3,6 +3,12 @@
 
 //========================================= Initialization =====================
 
+const sf::Color Game::GREEN(88, 209, 44, 255);
+const sf::Color Game::RED(217, 11, 49, 255);
+const sf::Color Game::PURPLE(201, 0, 184, 255);
+const sf::Color Game::ORANGE(201, 154, 0, 255);
+const sf::Color Game::CLEAR(0, 0, 0, 17);
+
 Game::Game():
   PREY_PERCENTAGE(10), PREDATOR_PERCENTAGE(10),
   defaultPrey(new Prey()), defaultPredator(new Predator()) {
@@ -196,22 +202,21 @@ void Game::display() {
       const auto predator = world[get1DPos(i, j)].predator;
 
       if ((prey or predator) == false) {
-        colorPixel(i, j, sf::Color::Black);
+        colorPixel(i, j, CLEAR);
         continue;
       }
 
       if (prey) {
-        if(prey -> isIll()) colorPixel(i, j, sf::Color::Yellow);
-        else colorPixel(i, j, sf::Color::Green);
+        if(prey -> isIll()) colorPixel(i, j, ORANGE);
+        else colorPixel(i, j, GREEN);
       }
       else {
-        if (predator -> isIll()) colorPixel(i, j, sf::Color::Magenta);
-        else colorPixel(i, j, sf::Color::Red);
+        if (predator -> isIll()) colorPixel(i, j, PURPLE);
+        else colorPixel(i, j, RED);
       }
     }
   }
 
-  window.clear();
   window.draw(pixels, WIDTH * HEIGHT << 2, sf::Points);
   window.display();
 }
