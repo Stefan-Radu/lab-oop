@@ -17,6 +17,8 @@ public:
 
   void run();
 
+  static const int CHANCE_MODULO = 100;
+
 private:
 
   struct Cell {
@@ -26,16 +28,19 @@ private:
     Predator *predator;
   };
 
+  bool endGame;
   int preyCnt, predatorCnt;
 
   sf::RenderWindow window;
 
-  static const int WIDTH = 800, HEIGHT = 600;
-  static const int CHANCE_MODULO = 1000;
-  const int PREY_PERCENTAGE, PREDATOR_PERCENTAGE; // out of 1000
+  static const int ILLNESS_CHANCE = 7;
+  static const int WIDTH = 720, HEIGHT = 480;
+  static const int NEW_POS_TRIES_THRESHOLD = 4;
+  static constexpr double END_GAME_THRESHOLD = 15.0;
+  const int PREY_PERCENTAGE, PREDATOR_PERCENTAGE;
 
-  const Prey* const defaultPrey;
-  const Predator* const defaultPredator;
+  Prey* const defaultPrey;
+  Predator* const defaultPredator;
 
   Cell *world, *worldAux;
   sf::Vertex *pixels;
@@ -47,9 +52,10 @@ private:
 
   void updatePreyState();
   void updatePredatorState();
-  void eatPrey();
   void updateState();
+  void spreadIllness(); 
 
+  void colorPixel(int&, int&, const sf::Color&);
   void display();
 
   Vec2D get2DPos(const int&) const; 
