@@ -3,11 +3,11 @@
 
 //========================================= Initialization =====================
 
-const sf::Color Game::GREEN(88, 209, 44, 255);
-const sf::Color Game::RED(217, 11, 49, 255);
+const sf::Color Game::GREEN(180, 255, 14, 255);
+const sf::Color Game::RED(217, 31, 39, 255);
 const sf::Color Game::PURPLE(201, 0, 184, 255);
 const sf::Color Game::ORANGE(201, 154, 0, 255);
-const sf::Color Game::CLEAR(0, 0, 0, 17);
+const sf::Color Game::CLEAR(0, 0, 0, 15);
 
 Game::Game():
   PREY_PERCENTAGE(10), PREDATOR_PERCENTAGE(10),
