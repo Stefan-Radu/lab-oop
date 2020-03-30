@@ -28,4 +28,3 @@ std::ostream& operator << (std::ostream &os, const Vec2D &v) {
   os << v.i << ' ' << v.j;
   return os;
 }
-
