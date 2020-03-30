@@ -268,7 +268,7 @@ void Game::run() {
     }
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(700));
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
 Vec2D Game::get2DPos(const int &cell) const {
