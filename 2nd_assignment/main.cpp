@@ -13,12 +13,12 @@ int main () {
 
     // initializing game with random values
 
-    int preyPerc = rand() % 10 + 1;
-    int predatorPerc = rand() % 10 + 1;
-    int preyMaxHealth = rand() % 50 + 1;
-    int preyHealthTic = rand() % 5 + 1;
-    int predatorMaxHealth = rand() % 50 + 1;
-    int predatorHealthTic = rand() % 5 + 1;
+    int preyPerc = rand() % 50 + 1;
+    int predatorPerc = rand() % 50 + 1;
+    int preyMaxHealth = rand() % 500 + 1;
+    int preyHealthTic = rand() % 50 + 1;
+    int predatorMaxHealth = rand() % 500 + 1;
+    int predatorHealthTic = rand() % 50 + 1;
 
     g[gameCnt] = new Game(preyPerc, predatorPerc,
                           preyMaxHealth, preyHealthTic,
