@@ -1,12 +1,14 @@
 #include "Creature.hpp"
 
 int mutate(int k) {
-  return k + rand() % 3 + 1;
+  return std::max(k + rand() % 3 - 1, 1);
 }
 
 //==================================================  Creature  ==================================================
 
-Creature::Creature(int h, bool i): health(h), ill(i) {}  
+Creature::Creature(int h, bool i, int mh, int ht):
+  health(h), ill(i), MAX_HEALTH(mh), HEALTH_TIC(mutate(ht)) {}  
+
 Creature::~Creature() {}
 
 bool Creature::isAlive() const {
@@ -25,21 +27,21 @@ int Creature::getHealth() const {
   return health;
 }
 
-//==================================================  Prey  ==================================================
-
-Prey::Prey(int mh, int ht):
-  Creature(1, false), MAX_HEALTH(mh), HEALTH_TIC(mutate(ht)) {}
-
-Prey::Prey(const Prey& prey):
-  Creature(prey.health, prey.ill), MAX_HEALTH(prey.MAX_HEALTH), HEALTH_TIC(mutate(prey.HEALTH_TIC)) {}
-
-void Prey::updateHealth() {
-  health += (-2 * (int)ill + 1) * HEALTH_TIC;
+void Creature::updateHealth(int toAdd) {
+  health += toAdd;
   if (health > MAX_HEALTH) health = MAX_HEALTH;
 }
 
-void Prey::updateHealth(int toAdd) {
-  health += toAdd;
+//==================================================  Prey  ==================================================
+
+Prey::Prey(int mh, int ht):
+  Creature(1, false, mh, ht) {}
+
+Prey::Prey(const Prey& prey):
+  Creature(prey.health, prey.ill, prey.MAX_HEALTH, prey.HEALTH_TIC) {}
+
+void Prey::updateHealth() {
+  health += (-2 * (int)ill + 1) * HEALTH_TIC;
   if (health > MAX_HEALTH) health = MAX_HEALTH;
 }
 
@@ -54,16 +56,11 @@ void Prey::resetHealth() {
 //==================================================  Predator  ==================================================
 
 Predator::Predator(int mh, int ht):
-  Creature(mh, false), MAX_HEALTH(mh), HEALTH_TIC(ht) {}
+  Creature(mh, false, mh, ht) {}
 
 Predator::Predator(const Predator& predator):
-  Creature(predator.health, predator.ill), MAX_HEALTH(predator.MAX_HEALTH), HEALTH_TIC(predator.HEALTH_TIC) {}
+  Creature(predator.health, predator.ill, predator.MAX_HEALTH, predator.HEALTH_TIC) {}
 
 void Predator::updateHealth() {
   health -= HEALTH_TIC << (int)ill;
-}
-
-void Predator::updateHealth(int toAdd) {
-  health += toAdd;
-  if (health > MAX_HEALTH) health = MAX_HEALTH;
 }

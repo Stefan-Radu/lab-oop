@@ -63,11 +63,13 @@ void Game::generateCreatures() {
     int chance = rand() % CHANCE_MODULO;
     if (chance < PREY_PERCENTAGE) {
       ++ preyCnt;
-      world[cell].prey = new Prey(*defaultPrey);
+      world[cell].type = CreatureType::PREY;
+      world[cell].creature = new Prey(*defaultPrey);
     }
     else if (chance < PREY_PERCENTAGE + PREDATOR_PERCENTAGE) {
       ++ predatorCnt;
-      world[cell].predator = new Predator(*defaultPredator);
+      world[cell].type = CreatureType::PREDATOR;
+      world[cell].creature = new Predator(*defaultPredator);
     }
   }
 }
@@ -78,46 +80,51 @@ void Game::updatePreyState() {
 
   for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell) {
 
-    if (not world[cell].prey) continue;
+    if (world[cell].type != CreatureType::PREY) continue;
 
-    Prey *&prey = world[cell].prey;
+    Prey *prey = static_cast < Prey* > (world[cell].creature);
 
     prey -> updateHealth();
 
     if (not prey -> isAlive()) {
       delete prey;
       -- preyCnt;
-      prey = nullptr;
+      world[cell].type = CreatureType::NOTHING;
+      world[cell].creature = nullptr;
       continue;
     }
 
     if (endGame and rand() % CHANCE_MODULO < ILLNESS_CHANCE) prey -> makeIll();
 
-    int newPos = get1DPos(constrain(get2DPos(cell) + Vec2D::getRandomWay()));
+    int newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
 
-    for (int i = 0; i < NEW_POS_TRIES_THRESHOLD and worldAux[newPos].prey; ++ i) {
-      newPos = get1DPos(constrain(get2DPos(cell) + Vec2D::getRandomWay()));
+    for (int i = 0; i < NEW_POS_TRIES_THRESHOLD and worldAux[newPos].type == CreatureType::PREY; ++ i) {
+      newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
     }
 
-    if (not worldAux[newPos].prey) {
-      worldAux[newPos].prey = prey;
-      if (not worldAux[cell].prey and prey -> canReproduce()) {
+    if (worldAux[newPos].type == CreatureType::NOTHING) {
+      if (worldAux[cell].type == CreatureType::NOTHING and prey -> canReproduce()) {
         prey -> resetHealth();
         ++ preyCnt;
-        worldAux[cell].prey = new Prey(*defaultPrey);
+        worldAux[cell].type = CreatureType::PREY;
+        worldAux[cell].creature = new Prey(*defaultPrey);
       }
+      worldAux[newPos].type = CreatureType::PREY;
+      worldAux[newPos].creature = prey;
     }
-    else if (not worldAux[cell].prey) {
-      worldAux[cell].prey = prey;
+    else if (worldAux[cell].type == CreatureType::NOTHING) {
+      worldAux[cell].type = CreatureType::PREY;
+      worldAux[cell].creature = prey;
     }
     else {
       // il pierd asa ca ii transfer viata
-      worldAux[cell].prey -> updateHealth(prey -> getHealth());
       -- preyCnt;
+      worldAux[cell].creature -> updateHealth(prey -> getHealth());
       delete prey;
     }
-    
-    prey = nullptr;
+
+    world[cell].type = CreatureType::NOTHING;
+    world[cell].creature = nullptr;
   }
 }
 
@@ -125,57 +132,64 @@ void Game::updatePredatorState() {
 
   for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell) {
 
-    if (not world[cell].predator) continue;
+    if (world[cell].type != CreatureType::PREDATOR) continue;
 
-    Predator *&predator = world[cell].predator;
+    Predator *predator = static_cast < Predator* > (world[cell].creature);
     predator -> updateHealth();
 
     if (not predator -> isAlive()) {
       delete predator;
       -- predatorCnt;
-      predator = nullptr;
+      world[cell].type = CreatureType::NOTHING;
+      world[cell].creature = nullptr;
       continue;
     }
 
-    int newPos = get1DPos(constrain(get2DPos(cell) + Vec2D::getRandomWay()));
-    for (int i = 0; i < NEW_POS_TRIES_THRESHOLD and worldAux[newPos].predator; ++ i) {
-      newPos = get1DPos(constrain(get2DPos(cell) + Vec2D::getRandomWay()));
+    int newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
+    for (int i = 0; i < NEW_POS_TRIES_THRESHOLD and worldAux[newPos].type == CreatureType::PREDATOR; ++ i) {
+      newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
     }
 
-    if (not worldAux[newPos].predator) {
+    if (worldAux[newPos].type != CreatureType::PREDATOR) {
 
-      worldAux[newPos].predator = predator;
-      if (worldAux[newPos].prey) {
+      if (worldAux[newPos].type == CreatureType::PREY) {
 
         -- preyCnt;
-        predator -> updateHealth(worldAux[newPos].prey -> getHealth());
+        predator -> Creature::updateHealth(worldAux[newPos].creature -> getHealth());
 
-        delete worldAux[newPos].prey;
-        worldAux[newPos].prey = nullptr;
+        delete worldAux[newPos].creature;
 
-        if (not worldAux[cell].predator) {
+        if (worldAux[cell].type == CreatureType::NOTHING) {
           ++ predatorCnt;
-          worldAux[cell].predator = new Predator(*defaultPredator);
+          worldAux[cell].type = CreatureType::PREDATOR;
+          worldAux[cell].creature = new Predator(*defaultPredator);
         }
-      }
+      } 
+
+      worldAux[newPos].type = CreatureType::PREDATOR;
+      worldAux[newPos].creature = predator;
     }
-    else if (not worldAux[cell].predator) {
-      worldAux[cell].predator = predator;
-      if (worldAux[cell].prey) {
+    else if (worldAux[cell].type != CreatureType::PREDATOR) {
+
+      if (worldAux[cell].type == CreatureType::PREY) {
         -- preyCnt;
-        predator -> updateHealth(worldAux[cell].prey -> getHealth());
-        delete worldAux[cell].prey;
-        worldAux[cell].prey = nullptr;
+        predator -> Creature::updateHealth(worldAux[cell].creature -> getHealth());
+        delete worldAux[cell].creature;
       }
+
+      worldAux[cell].type = CreatureType::PREDATOR;
+      worldAux[cell].creature = predator;
     }
     else {
       // il pierd, deci fac transfer de viata
       -- predatorCnt;
-      worldAux[cell].predator -> updateHealth(predator -> getHealth());
+      worldAux[cell].creature -> updateHealth(predator -> getHealth());
       delete predator;
     }
     // clear for next frame
-    predator = nullptr;
+    
+    world[cell].type = CreatureType::NOTHING;
+    world[cell].creature = nullptr;
   }
 }
 
@@ -199,20 +213,17 @@ void Game::display() {
   for (int i = 0; i < HEIGHT; ++ i) {
     for (int j = 0; j < WIDTH; ++ j) {
       
-      const auto prey = world[get1DPos(i, j)].prey;
-      const auto predator = world[get1DPos(i, j)].predator;
+      const Cell &cell = world[get1DPos(i, j)];
 
-      if ((prey or predator) == false) {
+      if (cell.type == CreatureType::NOTHING) {
         colorPixel(i, j, CLEAR);
-        continue;
       }
-
-      if (prey) {
-        if(prey -> isIll()) colorPixel(i, j, ORANGE);
+      else if (cell.type == CreatureType::PREY) {
+        if(cell.creature -> isIll()) colorPixel(i, j, ORANGE);
         else colorPixel(i, j, GREEN);
       }
       else {
-        if (predator -> isIll()) colorPixel(i, j, PURPLE);
+        if (cell.creature -> isIll()) colorPixel(i, j, PURPLE);
         else colorPixel(i, j, RED);
       }
     }
@@ -283,7 +294,7 @@ int Game::get1DPos(const int &i, const int &j) const {
   return i * WIDTH + j;
 }
 
-Vec2D Game::constrain(Vec2D pos) {
+Vec2D Game::wrap(Vec2D pos) {
   if (pos.i < 0) pos.i = HEIGHT - 1;
   else if (pos.i >= HEIGHT) pos.i = 0;
   if (pos.j < 0) pos.j = WIDTH - 1;
@@ -302,11 +313,10 @@ Game::~Game() {
 }
 
 Game::Cell::Cell() {
-  prey = nullptr;
-  predator = nullptr;
+  type = CreatureType::NOTHING;
+  creature = nullptr;
 }
 
 Game::Cell::~Cell() {
-  delete prey;
-  delete predator;
+  delete creature;
 }

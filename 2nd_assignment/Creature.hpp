@@ -10,10 +10,11 @@ class Creature {
 public:
 
   Creature();
-  Creature(int, bool);
+  Creature(int, bool, int, int);
   virtual ~Creature() = 0;
 
   virtual void updateHealth() = 0;
+  void updateHealth(int);
 
   bool isAlive() const; 
   bool isIll() const;
@@ -23,6 +24,8 @@ public:
 protected:
   int health;
   bool ill;
+  const int MAX_HEALTH;
+  const int HEALTH_TIC;
 };
 
 class Prey: public Creature {
@@ -31,15 +34,9 @@ public:
   Prey(int mh = 10, int ht = 1);
   Prey(const Prey&);
 
+  void resetHealth();
   bool canReproduce() const;
   void updateHealth() override;
-  void updateHealth(int);
-  void resetHealth();
-
-private:
-
-  const int MAX_HEALTH;
-  const int HEALTH_TIC;
 };
 
 class Predator: public Creature {
@@ -49,10 +46,4 @@ public:
   Predator(const Predator&);
 
   void updateHealth() override;
-  void updateHealth(int);
-
-private:
-
-  const int MAX_HEALTH;
-  const int HEALTH_TIC;
 };

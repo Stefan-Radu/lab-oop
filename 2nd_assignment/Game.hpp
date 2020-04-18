@@ -23,9 +23,9 @@ private:
 
   struct Cell {
     Cell();
+    CreatureType type;
+    Creature *creature;
     ~Cell();
-    Prey *prey;
-    Predator *predator;
   };
 
   bool endGame;
@@ -70,5 +70,5 @@ private:
   int get1DPos(const Vec2D&) const; 
   int get1DPos(const int&, const int&) const; 
 
-  Vec2D constrain(Vec2D);
+  Vec2D wrap(Vec2D);
 };

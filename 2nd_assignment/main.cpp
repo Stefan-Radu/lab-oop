@@ -6,10 +6,12 @@ int main () {
 
   srand(time(0));
 
-  const int GAMES_CNT = 7;
+  const int GAMES_CNT = 5;
   Game **g = new Game*[GAMES_CNT];
 
   for (int gameCnt = 0; gameCnt < GAMES_CNT; ++ gameCnt) {
+
+    // initializing game with random values
 
     int preyPerc = rand() % 10 + 1;
     int predatorPerc = rand() % 10 + 1;
@@ -19,8 +21,8 @@ int main () {
     int predatorHealthTic = rand() % 5 + 1;
 
     g[gameCnt] = new Game(preyPerc, predatorPerc,
-                    preyMaxHealth, preyHealthTic,
-                    predatorMaxHealth, predatorHealthTic);
+                          preyMaxHealth, preyHealthTic,
+                          predatorMaxHealth, predatorHealthTic);
 
     std::cerr << "\nInitialized game no. " << gameCnt << " with:\n";
     std::cerr << "Prey percentage: " << predatorPerc << " / " << Game::CHANCE_MODULO << '\n';
@@ -36,10 +38,7 @@ int main () {
 
   delete[] g;
 
-  // TODO create game map with enum class
-  // TODO have creatures in sepparate arrays
-  // TODO recycle creatures to improve memory allocation
-  // TODO change game logic for more performance - creatures in sepparate arrays
+  // TODO add option to stay in place when moving
   // TODO remake redame 
   // TODO git release notes
 }
