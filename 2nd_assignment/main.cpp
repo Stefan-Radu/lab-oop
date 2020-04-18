@@ -37,8 +37,4 @@ int main () {
   }
 
   delete[] g;
-
-  // TODO add option to stay in place when moving to simplify logic
-  // TODO remake redame 
-  // TODO git release notes
 }
