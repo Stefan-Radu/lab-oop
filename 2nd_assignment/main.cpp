@@ -36,8 +36,10 @@ int main () {
 
   delete[] g;
 
+  // TODO create game map with enum class
+  // TODO have creatures in sepparate arrays
+  // TODO recycle creatures to improve memory allocation
   // TODO change game logic for more performance - creatures in sepparate arrays
   // TODO remake redame 
-  // TODO git tags
   // TODO git release notes
 }
