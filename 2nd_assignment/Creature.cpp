@@ -62,5 +62,5 @@ Predator::Predator(const Predator& predator):
   Creature(predator.health, predator.ill, predator.MAX_HEALTH, predator.HEALTH_TIC) {}
 
 void Predator::updateHealth() {
-  health -= HEALTH_TIC << (int)ill;
+  health -= HEALTH_TIC;
 }
