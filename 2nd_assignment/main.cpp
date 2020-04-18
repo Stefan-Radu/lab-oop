@@ -36,9 +36,7 @@ int main () {
 
   delete[] g;
 
-  // TODO enum class for creature types
   // TODO change game logic for more performance - creatures in sepparate arrays
-  // TODO assert limits
   // TODO remake redame 
   // TODO git tags
   // TODO git release notes

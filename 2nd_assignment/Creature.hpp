@@ -4,6 +4,8 @@
 
 int mutate(int k);
 
+enum class CreatureType { PREDATOR, PREY, NOTHING };
+
 class Creature {
 public:
 
