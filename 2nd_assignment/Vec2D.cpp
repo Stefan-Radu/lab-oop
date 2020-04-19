@@ -5,18 +5,18 @@ Vec2D::Vec2D(int i, int j): i(i), j(j) {}
 Vec2D::Vec2D(const Vec2D &v): i(v.i), j(v.j) {}
 
 Vec2D& Vec2D::operator = (const Vec2D &other) {
-  this -> i = other.i;
-  this -> j = other.j;
+  this->i = other.i;
+  this->j = other.j;
   return *this;
 }
 
 Vec2D Vec2D::operator + (const Vec2D &other) const {
-  return Vec2D(this -> i + other.i, this -> j + other.j);
+  return Vec2D(this->i + other.i, this->j + other.j);
 }
 
 void Vec2D::operator += (const Vec2D &other) {
-  this -> i += other.i;
-  this -> j += other.j;
+  this->i += other.i;
+  this->j += other.j;
 }
 
 Vec2D Vec2D::getRandomWay() {

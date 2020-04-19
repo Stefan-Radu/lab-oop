@@ -32,7 +32,7 @@ int main () {
     std::cerr << "Maximum health of predator: " << predatorMaxHealth <<  '\n';
     std::cerr << "Health tic of predator (+- 1): " << predatorHealthTic <<  '\n';
 
-    g[gameCnt] -> run();
+    g[gameCnt]->run();
     delete g[gameCnt];
   }
 

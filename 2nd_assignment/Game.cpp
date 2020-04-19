@@ -84,9 +84,9 @@ void Game::updatePreyState() {
 
     Prey *prey = static_cast < Prey* > (world[cell].creature);
 
-    prey -> updateHealth();
+    prey->updateHealth();
 
-    if (not prey -> isAlive()) {
+    if (not prey->isAlive()) {
       delete prey;
       -- preyCnt;
       world[cell].type = CreatureType::NOTHING;
@@ -94,7 +94,7 @@ void Game::updatePreyState() {
       continue;
     }
 
-    if (endGame and rand() % CHANCE_MODULO < ILLNESS_CHANCE) prey -> makeIll();
+    if (endGame and rand() % CHANCE_MODULO < ILLNESS_CHANCE) prey->makeIll();
 
     int newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
 
@@ -103,8 +103,8 @@ void Game::updatePreyState() {
     }
 
     if (worldAux[newPos].type == CreatureType::NOTHING) {
-      if (worldAux[cell].type == CreatureType::NOTHING and prey -> canReproduce()) {
-        prey -> resetHealth();
+      if (worldAux[cell].type == CreatureType::NOTHING and prey->canReproduce()) {
+        prey->resetHealth();
         ++ preyCnt;
         worldAux[cell].type = CreatureType::PREY;
         worldAux[cell].creature = new Prey(*defaultPrey);
@@ -119,7 +119,7 @@ void Game::updatePreyState() {
     else {
       // il pierd asa ca ii transfer viata
       -- preyCnt;
-      worldAux[cell].creature -> updateHealth(prey -> getHealth());
+      worldAux[cell].creature->updateHealth(prey->getHealth());
       delete prey;
     }
 
@@ -135,9 +135,9 @@ void Game::updatePredatorState() {
     if (world[cell].type != CreatureType::PREDATOR) continue;
 
     Predator *predator = static_cast < Predator* > (world[cell].creature);
-    predator -> updateHealth();
+    predator->updateHealth();
 
-    if (not predator -> isAlive()) {
+    if (not predator->isAlive()) {
       delete predator;
       -- predatorCnt;
       world[cell].type = CreatureType::NOTHING;
@@ -155,7 +155,7 @@ void Game::updatePredatorState() {
       if (worldAux[newPos].type == CreatureType::PREY) {
 
         -- preyCnt;
-        predator -> Creature::updateHealth(worldAux[newPos].creature -> getHealth());
+        predator->Creature::updateHealth(worldAux[newPos].creature->getHealth());
 
         delete worldAux[newPos].creature;
 
@@ -173,7 +173,7 @@ void Game::updatePredatorState() {
 
       if (worldAux[cell].type == CreatureType::PREY) {
         -- preyCnt;
-        predator -> Creature::updateHealth(worldAux[cell].creature -> getHealth());
+        predator->Creature::updateHealth(worldAux[cell].creature->getHealth());
         delete worldAux[cell].creature;
       }
 
@@ -183,7 +183,7 @@ void Game::updatePredatorState() {
     else {
       // il pierd, deci fac transfer de viata
       -- predatorCnt;
-      worldAux[cell].creature -> updateHealth(predator -> getHealth());
+      worldAux[cell].creature->updateHealth(predator->getHealth());
       delete predator;
     }
     // clear for next frame
@@ -219,11 +219,11 @@ void Game::display() {
         colorPixel(i, j, CLEAR);
       }
       else if (cell.type == CreatureType::PREY) {
-        if(cell.creature -> isIll()) colorPixel(i, j, ORANGE);
+        if(cell.creature->isIll()) colorPixel(i, j, ORANGE);
         else colorPixel(i, j, GREEN);
       }
       else {
-        if (cell.creature -> isIll()) colorPixel(i, j, PURPLE);
+        if (cell.creature->isIll()) colorPixel(i, j, PURPLE);
         else colorPixel(i, j, RED);
       }
     }
@@ -249,8 +249,8 @@ void Game::run() {
       auto diff = std::chrono::duration_cast < std::chrono::seconds > (currentTime - startTime);
 
       if (diff.count() > END_GAME_THRESHOLD){
-        defaultPrey -> makeIll();
-        defaultPredator -> makeIll();
+        defaultPrey->makeIll();
+        defaultPredator->makeIll();
         endGame = true;
       }
     }
