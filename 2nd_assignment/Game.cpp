@@ -102,7 +102,7 @@ void Game::updatePreyState() {
       newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
     }
 
-    if (worldAux[newPos].type == CreatureType::NOTHING) {
+    if (worldAux[newPos].type != CreatureType::PREY) {
       if (worldAux[cell].type == CreatureType::NOTHING and prey->canReproduce()) {
         prey->resetHealth();
         ++ preyCnt;
@@ -112,17 +112,14 @@ void Game::updatePreyState() {
       worldAux[newPos].type = CreatureType::PREY;
       worldAux[newPos].creature = prey;
     }
-    else if (worldAux[cell].type == CreatureType::NOTHING) {
-      worldAux[cell].type = CreatureType::PREY;
-      worldAux[cell].creature = prey;
-    }
     else {
-      // il pierd asa ca ii transfer viata
+      // life transfer
       -- preyCnt;
-      worldAux[cell].creature->updateHealth(prey->getHealth());
+      worldAux[newPos].creature->updateHealth(prey->getHealth());
       delete prey;
     }
 
+    // clear for next frame
     world[cell].type = CreatureType::NOTHING;
     world[cell].creature = nullptr;
   }
@@ -169,23 +166,13 @@ void Game::updatePredatorState() {
       worldAux[newPos].type = CreatureType::PREDATOR;
       worldAux[newPos].creature = predator;
     }
-    else if (worldAux[cell].type != CreatureType::PREDATOR) {
-
-      if (worldAux[cell].type == CreatureType::PREY) {
-        -- preyCnt;
-        predator->Creature::updateHealth(worldAux[cell].creature->getHealth());
-        delete worldAux[cell].creature;
-      }
-
-      worldAux[cell].type = CreatureType::PREDATOR;
-      worldAux[cell].creature = predator;
-    }
     else {
-      // il pierd, deci fac transfer de viata
+      // life transfer
       -- predatorCnt;
-      worldAux[cell].creature->updateHealth(predator->getHealth());
+      worldAux[newPos].creature->updateHealth(predator->getHealth());
       delete predator;
     }
+
     // clear for next frame
     
     world[cell].type = CreatureType::NOTHING;
