@@ -2,7 +2,7 @@
 #include <chrono>
 #include <thread>
 
-//========================================= Initialization =====================
+//==================================================  Initialization  ==================================================
 
 const sf::Color Game::GREEN(180, 255, 14, 50);
 const sf::Color Game::RED(217, 31, 39, 50);
@@ -74,7 +74,7 @@ void Game::generateCreatures() {
   }
 }
 
-//========================================= Game logic =====================
+//==================================================  Game Logic  ==================================================
 
 void Game::updatePreyState() {
 
@@ -179,6 +179,8 @@ void Game::updatePredatorState() {
     world[cell].creature = nullptr;
   }
 }
+
+//==================================================  Functionality  ==================================================
 
 void Game::updateState() {
 
@@ -289,7 +291,10 @@ Vec2D Game::wrap(Vec2D pos) {
   return pos;
 }
 
-// ====================================== Cleanup / init ====
+Game::Cell::Cell() {
+  type = CreatureType::NOTHING;
+  creature = nullptr;
+}
 
 Game::~Game() {
   delete defaultPrey;
@@ -297,11 +302,6 @@ Game::~Game() {
   delete[] world;
   delete[] worldAux;
   delete[] pixels;
-}
-
-Game::Cell::Cell() {
-  type = CreatureType::NOTHING;
-  creature = nullptr;
 }
 
 Game::Cell::~Cell() {
