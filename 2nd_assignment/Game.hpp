@@ -9,6 +9,9 @@
 class Game {
 public:
 
+  // TODO rezolva cu constructorii
+  // TODO singleton
+
   Game();
   Game(int, int);
   Game(int, int, int, int, int, int);
@@ -26,6 +29,7 @@ private:
     CreatureType type;
     Creature *creature;
     ~Cell();
+    // TODO operator = 
   };
 
   bool endGame;

@@ -9,14 +9,13 @@ enum class CreatureType { PREDATOR, PREY, NOTHING };
 class Creature {
 public:
 
-  Creature();
   Creature(int, bool, int, int);
   virtual ~Creature() = 0;
 
   virtual void updateHealth() = 0;
   void updateHealth(int);
 
-  bool isAlive() const; 
+  bool isDead() const; 
   bool isIll() const;
   void makeIll();
   int getHealth() const;
@@ -31,7 +30,7 @@ protected:
 class Prey: public Creature {
 public:
 
-  Prey(int mh = 10, int ht = 1);
+  Prey(int, int);
   Prey(const Prey&);
 
   void resetHealth();
@@ -42,7 +41,7 @@ public:
 class Predator: public Creature {
 public:
 
-  Predator(int mh = 10, int ht = 1);
+  Predator(int, int);
   Predator(const Predator&);
 
   void updateHealth() override;

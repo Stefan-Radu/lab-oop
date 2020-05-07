@@ -76,6 +76,55 @@ void Game::generateCreatures() {
 
 //==================================================  Game Logic  ==================================================
 
+void Game::updateState() {
+
+  for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell) {
+
+    if (world[cell].type == CreatureType::NOTHING) continue;
+
+    Creature *creature = world[cell].creature;
+
+    creature->updateHealth();
+
+    if (creature->isDead()) {
+      delete creature;
+      -- preyCnt;
+      world[cell].type = CreatureType::NOTHING;
+      world[cell].creature = nullptr;
+      continue;
+    }
+
+    if (endGame and rand() % CHANCE_MODULO < ILLNESS_CHANCE) prey->makeIll();
+
+    int newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
+
+    for (int i = 0; i < NEW_POS_TRIES_THRESHOLD and worldAux[newPos].type == CreatureType::PREY; ++ i) {
+      newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
+    }
+
+    if (worldAux[newPos].type != CreatureType::PREY) {
+      if (worldAux[cell].type == CreatureType::NOTHING and prey->canReproduce()) {
+        prey->resetHealth();
+        ++ preyCnt;
+        worldAux[cell].type = CreatureType::PREY;
+        worldAux[cell].creature = new Prey(*defaultPrey);
+      }
+      worldAux[newPos].type = CreatureType::PREY;
+      worldAux[newPos].creature = prey;
+    }
+    else {
+      // life transfer
+      -- preyCnt;
+      worldAux[newPos].creature->updateHealth(prey->getHealth());
+      delete prey;
+    }
+
+    // clear for next frame
+    world[cell].type = CreatureType::NOTHING;
+    world[cell].creature = nullptr;
+  }
+}
+
 void Game::updatePreyState() {
 
   for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell) {
