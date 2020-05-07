@@ -66,3 +66,7 @@ Predator::Predator(const Predator& predator):
 void Predator::updateHealth() {
   health -= HEALTH_TIC;
 }
+
+void Predator::resetHealth() {
+  health = MAX_HEALTH;
+}

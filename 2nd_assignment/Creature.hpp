@@ -12,12 +12,13 @@ public:
   Creature(int, bool, int, int);
   virtual ~Creature() = 0;
 
-  virtual void updateHealth() = 0;
   void updateHealth(int);
+  virtual void updateHealth() = 0;
 
   bool isDead() const; 
   bool isIll() const;
   void makeIll();
+  virtual void resetHealth() = 0;
   int getHealth() const;
 
 protected:
@@ -33,9 +34,9 @@ public:
   Prey(int, int);
   Prey(const Prey&);
 
-  void resetHealth();
   bool canReproduce() const;
   void updateHealth() override;
+  void resetHealth() override;
 };
 
 class Predator: public Creature {
@@ -45,4 +46,5 @@ public:
   Predator(const Predator&);
 
   void updateHealth() override;
+  void resetHealth() override;
 };
