@@ -29,6 +29,8 @@ protected:
   bool ill;
   const int MAX_HEALTH;
   const int HEALTH_TIC;
+
+  friend std::ostream& operator << (std::ostream&, Creature&);
 };
 
 class Prey: public Creature {

@@ -10,28 +10,7 @@ int main () {
   Game **g = new Game*[GAMES_CNT];
 
   for (int gameCnt = 0; gameCnt < GAMES_CNT; ++ gameCnt) {
-
-    // initializing game with random values
-
-    int preyPerc = rand() % 50 + 1;
-    int predatorPerc = rand() % 50 + 1;
-    int preyMaxHealth = rand() % 500 + 1;
-    int preyHealthTic = rand() % 50 + 1;
-    int predatorMaxHealth = rand() % 500 + 1;
-    int predatorHealthTic = rand() % 50 + 1;
-
-    g[gameCnt] = new Game(preyPerc, predatorPerc,
-                          preyMaxHealth, preyHealthTic,
-                          predatorMaxHealth, predatorHealthTic);
-
-    std::cerr << "\nInitialized game no. " << gameCnt << " with:\n";
-    std::cerr << "Prey percentage: " << predatorPerc << " / " << Game::CHANCE_MODULO << '\n';
-    std::cerr << "Predator percentage: " << predatorPerc << " / " << Game::CHANCE_MODULO << '\n';
-    std::cerr << "Maximum health of prey: " << preyMaxHealth <<  '\n';
-    std::cerr << "Health tic of prey (+- 1): " << preyHealthTic <<  '\n';
-    std::cerr << "Maximum health of predator: " << predatorMaxHealth <<  '\n';
-    std::cerr << "Health tic of predator (+- 1): " << predatorHealthTic <<  '\n';
-
+    g[gameCnt] = new Game();
     g[gameCnt]->run();
     delete g[gameCnt];
   }

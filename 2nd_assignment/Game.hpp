@@ -11,8 +11,7 @@ public:
 
   // TODO singleton
 
-  Game(int, int, int, int, int, int);
-
+  Game();
   ~Game();
 
   void run();
@@ -39,22 +38,29 @@ private:
   static const sf::Color ORANGE;
   static const sf::Color CLEAR;
 
-  const int PREY_PERCENTAGE, PREDATOR_PERCENTAGE;
+  const int WIDTH = 600, HEIGHT = 400;
+  int PREY_PERCENTAGE = 33, PREDATOR_PERCENTAGE = 33;
 
+  static const int MAX_CREATURE_PERCENTAGE = 50;
+  static const int MAX_CREATURE_HEALTH = 1000;
+  static const int MAX_CREATURE_HEALTH_TIC = 100;
   static const int ILLNESS_CHANCE = 7;
-  static const int WIDTH = 600, HEIGHT = 400;
   static const int NEXT_POS_TRIES_THRESHOLD = 4;
 
   static constexpr double END_GAME_THRESHOLD = 15.0;
   static constexpr double NO_CREATURES_THRESOLD = 1.5;
 
-  Prey* const defaultPrey;
-  Predator* const defaultPredator;
+  Prey* defaultPrey;
+  Predator* defaultPredator;
 
+  static int gameCount;
   static Cell nullCell;
 
   Cell *world, *worldAux;
   sf::Vertex *pixels;
+
+  void logDetails() const;
+  void resetGame();
 
   void initWorld();
   void initPixels();

@@ -44,6 +44,12 @@ Creature::~Creature() {
   -- howMany;
 }
 
+std::ostream& operator << (std::ostream &os, Creature &c) {
+  os << "Maximum health: " << c.MAX_HEALTH <<  '\n';
+  os << "Health tic: " << c.HEALTH_TIC <<  '\n';
+  return os;
+}
+
 //==================================================  Prey  ==================================================
 
 Prey::Prey(int maxHealth, int healthTick):

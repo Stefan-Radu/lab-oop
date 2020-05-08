@@ -10,15 +10,42 @@ const sf::Color Game::PURPLE(201, 0, 184, 51);
 const sf::Color Game::ORANGE(201, 154, 0, 51);
 const sf::Color Game::CLEAR(0, 0, 0, 15);
 
-Game::Cell Game::nullCell = Cell();
+int Game::gameCount = 1;
+Game::Cell Game::nullCell = Game::Cell();
 
-Game::Game(int preyPerc, int predatorPerc,
-    int maxHealthPrey, int healthTickPrey,
-    int maxHealthPredator, int healthTickPredator):
-  PREY_PERCENTAGE(preyPerc), PREDATOR_PERCENTAGE(predatorPerc),
-  defaultPrey(new Prey(maxHealthPrey, healthTickPrey)),
-  defaultPredator(new Predator(maxHealthPredator, healthTickPredator)) {
+Game::Game():
+  PREY_PERCENTAGE(rand() % MAX_CREATURE_PERCENTAGE + 1),
+  PREDATOR_PERCENTAGE(rand() % MAX_CREATURE_PERCENTAGE + 1),
+  defaultPrey(new Prey(rand() % MAX_CREATURE_HEALTH + 1, rand() % MAX_CREATURE_HEALTH_TIC + 1)),
+  defaultPredator(new Predator(rand() % MAX_CREATURE_HEALTH + 1, rand() % MAX_CREATURE_HEALTH_TIC + 1)) {
+
   initEverything();
+  logDetails();
+}
+
+void Game::logDetails() const {
+  std::cerr << "\nInitialized game no. " << gameCount << " with:\n";
+  std::cerr << "Prey percentage: " << PREY_PERCENTAGE << " / " << Game::CHANCE_MODULO << '\n';
+  std::cerr << "Predator percentage: " << PREDATOR_PERCENTAGE << " / " << Game::CHANCE_MODULO << '\n';
+  std::cerr << "Prey:\n" << *defaultPrey;
+  std::cerr << "Predator:\n" << *defaultPredator;
+}
+
+void Game::resetGame() {
+
+  PREY_PERCENTAGE = rand() % MAX_CREATURE_PERCENTAGE + 1;
+  PREDATOR_PERCENTAGE = rand() % MAX_CREATURE_PERCENTAGE + 1;
+
+  delete defaultPrey;
+  defaultPrey = new Prey(rand() % MAX_CREATURE_HEALTH + 1, rand() % MAX_CREATURE_HEALTH_TIC + 1);
+
+  delete defaultPredator;
+  defaultPredator = new Predator(rand() % MAX_CREATURE_HEALTH + 1, rand() % MAX_CREATURE_HEALTH_TIC + 1);
+
+  endGame = false;
+  noCreatures = false;
+
+  generateCreatures();
 }
 
 void Game::initEverything() {
@@ -33,7 +60,7 @@ void Game::initEverything() {
   generateCreatures();
 
   window.create(sf::VideoMode(WIDTH << 1, HEIGHT << 1), "Predator & Prey");
-  window.setFramerateLimit(30);
+  window.setFramerateLimit(27);
   window.setVerticalSyncEnabled(true);
 }
 
@@ -210,7 +237,7 @@ void Game::display() {
 
 void Game::run() {
 
-  window.clear();
+  window.clear(CLEAR);
   window.display();
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
