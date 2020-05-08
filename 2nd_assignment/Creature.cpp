@@ -36,6 +36,8 @@ void Creature::updateHealth(int toAdd) {
   }
 }
 
+Creature::~Creature() {}
+
 //==================================================  Prey  ==================================================
 
 Prey::Prey(int maxHealth, int healthTick):

@@ -10,7 +10,7 @@ class Creature {
 public:
 
   Creature(int, bool, int, int);
-  virtual ~Creature() = 0;
+  virtual ~Creature();
 
   void updateHealth(int);
   void makeIll();
