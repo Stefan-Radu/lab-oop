@@ -26,7 +26,7 @@ void Game::initEverything() {
   srand(time(0));
 
   endGame = false;
-  preyCnt = predatorCnt = 0;
+  noCreatures = false;
 
   initWorld();
   initPixels();
@@ -55,12 +55,10 @@ void Game::generateCreatures() {
   for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell ) {
     int chance = rand() % CHANCE_MODULO;
     if (chance < PREY_PERCENTAGE) {
-      ++ preyCnt;
       world[cell].type = CreatureType::PREY;
       world[cell].creature = new Prey(*defaultPrey);
     }
     else if (chance < PREY_PERCENTAGE + PREDATOR_PERCENTAGE) {
-      ++ predatorCnt;
       world[cell].type = CreatureType::PREDATOR;
       world[cell].creature = new Predator(*defaultPredator);
     }
@@ -70,19 +68,6 @@ void Game::generateCreatures() {
 //==================================================  Game Logic  ==================================================
 
 void Game::removeCreature(Game::Cell &cell) {
-
-  switch (cell.type) {
-    case CreatureType::PREY:
-      -- preyCnt;
-      break;
-    case CreatureType::PREDATOR:
-      -- predatorCnt;
-      break;
-    case CreatureType::NOTHING:
-      std::cerr << "Cannot delete nothing";
-      break;
-  }
-
   delete cell.creature;
   cell = nullCell;
 }
@@ -93,11 +78,9 @@ void Game::addCreature(Game::Cell &cell, CreatureType type) {
 
   switch (type) {
     case CreatureType::PREY:
-      ++ preyCnt;
       cell.creature = new Prey(*defaultPrey);
       break;
     case CreatureType::PREDATOR:
-      ++ predatorCnt;
       cell.creature = new Predator(*defaultPredator);
       break;
     case CreatureType::NOTHING:
@@ -247,8 +230,9 @@ void Game::run() {
       }
     }
 
-    if (predatorCnt + preyCnt == 0) {
-      -- preyCnt;
+    if (Creature::howMany == 2 and not noCreatures) {
+      // 2 because of default creatures
+      noCreatures = true;
       startTime = std::chrono::high_resolution_clock::now();
     }
 
@@ -262,7 +246,7 @@ void Game::run() {
     updateState();
     display();
 
-    if (preyCnt == -1) {
+    if (noCreatures) {
       auto currentTime = std::chrono::high_resolution_clock::now();
       auto diff = std::chrono::duration_cast < std::chrono::seconds > (currentTime - startTime);
       if (diff.count() > NO_CREATURES_THRESOLD) {

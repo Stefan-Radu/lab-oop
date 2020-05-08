@@ -29,8 +29,7 @@ private:
     ~Cell();
   };
 
-  bool endGame;
-  int preyCnt, predatorCnt;
+  bool endGame, noCreatures;
 
   sf::RenderWindow window;
 

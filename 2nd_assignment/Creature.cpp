@@ -6,8 +6,12 @@ int mutate(int k) {
 
 //==================================================  Creature  ==================================================
 
+int Creature::howMany = 0;
+
 Creature::Creature(int health, bool ill, int maxHealth, int healthTick):
-  health(health), ill(ill), MAX_HEALTH(maxHealth), HEALTH_TIC(mutate(healthTick)) {}  
+  health(health), ill(ill), MAX_HEALTH(maxHealth), HEALTH_TIC(mutate(healthTick)) {
+  ++ howMany;
+}  
 
 bool Creature::isDead() const {
   return health <= 0;
@@ -36,7 +40,9 @@ void Creature::updateHealth(int toAdd) {
   }
 }
 
-Creature::~Creature() {}
+Creature::~Creature() {
+  -- howMany;
+}
 
 //==================================================  Prey  ==================================================
 

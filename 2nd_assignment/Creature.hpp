@@ -12,6 +12,8 @@ public:
   Creature(int, bool, int, int);
   virtual ~Creature();
 
+  static int howMany;
+
   void updateHealth(int);
   void makeIll();
   int getHealth() const;
