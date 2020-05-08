@@ -4,27 +4,20 @@
 
 //==================================================  Initialization  ==================================================
 
-const sf::Color Game::GREEN(180, 255, 14, 50);
-const sf::Color Game::RED(217, 31, 39, 50);
-const sf::Color Game::PURPLE(201, 0, 184, 50);
-const sf::Color Game::ORANGE(201, 154, 0, 50);
+const sf::Color Game::GREEN(180, 255, 14, 51);
+const sf::Color Game::RED(217, 31, 39, 51);
+const sf::Color Game::PURPLE(201, 0, 184, 51);
+const sf::Color Game::ORANGE(201, 154, 0, 51);
 const sf::Color Game::CLEAR(0, 0, 0, 15);
 
-Game::Game():
-  PREY_PERCENTAGE(10), PREDATOR_PERCENTAGE(10),
-  defaultPrey(new Prey()), defaultPredator(new Predator()) {
-  initEverything();
-}
+Game::Cell Game::nullCell = Cell();
 
-Game::Game(int preyPerc, int predatorPerc):
+Game::Game(int preyPerc, int predatorPerc,
+    int maxHealthPrey, int healthTickPrey,
+    int maxHealthPredator, int healthTickPredator):
   PREY_PERCENTAGE(preyPerc), PREDATOR_PERCENTAGE(predatorPerc),
-  defaultPrey(new Prey()), defaultPredator(new Predator()) {
-  initEverything();
-}
-
-Game::Game(int preyPerc, int predatorPerc, int mh1, int ht1, int mh2, int ht2):
-  PREY_PERCENTAGE(preyPerc), PREDATOR_PERCENTAGE(predatorPerc),
-  defaultPrey(new Prey(mh1, ht1)), defaultPredator(new Predator(mh2, ht2)) {
+  defaultPrey(new Prey(maxHealthPrey, healthTickPrey)),
+  defaultPredator(new Predator(maxHealthPredator, healthTickPredator)) {
   initEverything();
 }
 
@@ -76,168 +69,129 @@ void Game::generateCreatures() {
 
 //==================================================  Game Logic  ==================================================
 
+void Game::removeCreature(Game::Cell &cell) {
+
+  switch (cell.type) {
+    case CreatureType::PREY:
+      -- preyCnt;
+      break;
+    case CreatureType::PREDATOR:
+      -- predatorCnt;
+      break;
+    case CreatureType::NOTHING:
+      std::cerr << "Cannot delete nothing";
+      break;
+  }
+
+  delete cell.creature;
+  cell = nullCell;
+}
+
+void Game::addCreature(Game::Cell &cell, CreatureType type) {
+
+  cell.type = type;
+
+  switch (type) {
+    case CreatureType::PREY:
+      ++ preyCnt;
+      cell.creature = new Prey(*defaultPrey);
+      break;
+    case CreatureType::PREDATOR:
+      ++ predatorCnt;
+      cell.creature = new Predator(*defaultPredator);
+      break;
+    case CreatureType::NOTHING:
+      std::cerr << "Cannot create NOTHING";
+      break;
+  }
+}
+
+bool Game::notSurvive(const int &cellIndex) {
+
+  world[cellIndex].creature->updateHealth();
+  if (world[cellIndex].creature->isDead()) {
+    removeCreature(world[cellIndex]);
+    return true; 
+  }
+
+  return false;
+}
+
+void Game::chanceMakeIll(const int &cellIndex) {
+  if (endGame and rand() % CHANCE_MODULO < ILLNESS_CHANCE) {
+    world[cellIndex].creature->makeIll();
+  }
+}
+
+int Game::getNextCellIndex(const int &cell) const {
+  int nextCell = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
+  for (int i = 0; i < NEXT_POS_TRIES_THRESHOLD and worldAux[nextCell].type == world[cell].type; ++ i) {
+    nextCell = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
+  }
+  return nextCell;
+}
+
+void Game::interact(const int &cellIndex, const int &nextCellIndex) {
+
+  // move cell
+  if (worldAux[nextCellIndex].type == CreatureType::NOTHING) {
+    worldAux[nextCellIndex] = world[cellIndex];
+  }
+  else {
+    switch (world[cellIndex].type) {
+      case CreatureType::PREY:
+        worldAux[nextCellIndex].creature->resetHealth();
+        removeCreature(world[cellIndex]);
+        break;
+      case CreatureType::PREDATOR:
+        world[cellIndex].creature->resetHealth();
+        removeCreature(worldAux[nextCellIndex]);
+        worldAux[nextCellIndex] = world[cellIndex];
+        break;
+      case CreatureType::NOTHING:
+        std::cerr << "Cannot move NOTHING\n";
+        break;
+    }
+  }
+
+  // reproduce
+  if (worldAux[nextCellIndex].creature -> canReproduce() and worldAux[cellIndex].type == CreatureType::NOTHING) {
+    addCreature(worldAux[cellIndex], worldAux[nextCellIndex].type);
+  }
+}
+
+void Game::transferLife(const int &cellIndex, const int &nextCellIndex) {
+  worldAux[nextCellIndex].creature->updateHealth(world[cellIndex].creature->getHealth());
+  removeCreature(world[cellIndex]);
+}
+
+void Game::updateCell(const int &cellIndex) {
+
+  if (world[cellIndex].type == CreatureType::NOTHING) return;
+  if (notSurvive(cellIndex)) return;
+
+  chanceMakeIll(cellIndex);
+
+  int nextCellIndex = getNextCellIndex(cellIndex);
+
+  if (worldAux[nextCellIndex].type != world[cellIndex].type) {
+    interact(cellIndex, nextCellIndex);
+  }
+  else {
+    transferLife(cellIndex, nextCellIndex);
+  }
+
+  world[cellIndex] = nullCell;
+}
+
 void Game::updateState() {
-
-  for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell) {
-
-    if (world[cell].type == CreatureType::NOTHING) continue;
-
-    Creature *creature = world[cell].creature;
-
-    creature->updateHealth();
-
-    if (creature->isDead()) {
-      delete creature;
-      -- preyCnt;
-      world[cell].type = CreatureType::NOTHING;
-      world[cell].creature = nullptr;
-      continue;
-    }
-
-    if (endGame and rand() % CHANCE_MODULO < ILLNESS_CHANCE) prey->makeIll();
-
-    int newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
-
-    for (int i = 0; i < NEW_POS_TRIES_THRESHOLD and worldAux[newPos].type == CreatureType::PREY; ++ i) {
-      newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
-    }
-
-    if (worldAux[newPos].type != CreatureType::PREY) {
-      if (worldAux[cell].type == CreatureType::NOTHING and prey->canReproduce()) {
-        prey->resetHealth();
-        ++ preyCnt;
-        worldAux[cell].type = CreatureType::PREY;
-        worldAux[cell].creature = new Prey(*defaultPrey);
-      }
-      worldAux[newPos].type = CreatureType::PREY;
-      worldAux[newPos].creature = prey;
-    }
-    else {
-      // life transfer
-      -- preyCnt;
-      worldAux[newPos].creature->updateHealth(prey->getHealth());
-      delete prey;
-    }
-
-    // clear for next frame
-    world[cell].type = CreatureType::NOTHING;
-    world[cell].creature = nullptr;
+  for (int cellIndex = 0; cellIndex < WIDTH * HEIGHT; ++ cellIndex) {
+    updateCell(cellIndex);
   }
-}
-
-void Game::updatePreyState() {
-
-  for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell) {
-
-    if (world[cell].type != CreatureType::PREY) continue;
-
-    Prey *prey = static_cast < Prey* > (world[cell].creature);
-
-    prey->updateHealth();
-
-    if (not prey->isAlive()) {
-      delete prey;
-      -- preyCnt;
-      world[cell].type = CreatureType::NOTHING;
-      world[cell].creature = nullptr;
-      continue;
-    }
-
-    if (endGame and rand() % CHANCE_MODULO < ILLNESS_CHANCE) prey->makeIll();
-
-    int newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
-
-    for (int i = 0; i < NEW_POS_TRIES_THRESHOLD and worldAux[newPos].type == CreatureType::PREY; ++ i) {
-      newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
-    }
-
-    if (worldAux[newPos].type != CreatureType::PREY) {
-      if (worldAux[cell].type == CreatureType::NOTHING and prey->canReproduce()) {
-        prey->resetHealth();
-        ++ preyCnt;
-        worldAux[cell].type = CreatureType::PREY;
-        worldAux[cell].creature = new Prey(*defaultPrey);
-      }
-      worldAux[newPos].type = CreatureType::PREY;
-      worldAux[newPos].creature = prey;
-    }
-    else {
-      // life transfer
-      -- preyCnt;
-      worldAux[newPos].creature->updateHealth(prey->getHealth());
-      delete prey;
-    }
-
-    // clear for next frame
-    world[cell].type = CreatureType::NOTHING;
-    world[cell].creature = nullptr;
-  }
-}
-
-void Game::updatePredatorState() {
-
-  for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell) {
-
-    if (world[cell].type != CreatureType::PREDATOR) continue;
-
-    Predator *predator = static_cast < Predator* > (world[cell].creature);
-    predator->updateHealth();
-
-    if (not predator->isAlive()) {
-      delete predator;
-      -- predatorCnt;
-      world[cell].type = CreatureType::NOTHING;
-      world[cell].creature = nullptr;
-      continue;
-    }
-
-    int newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
-    for (int i = 0; i < NEW_POS_TRIES_THRESHOLD and worldAux[newPos].type == CreatureType::PREDATOR; ++ i) {
-      newPos = get1DPos(wrap(get2DPos(cell) + Vec2D::getRandomWay()));
-    }
-
-    if (worldAux[newPos].type != CreatureType::PREDATOR) {
-
-      if (worldAux[newPos].type == CreatureType::PREY) {
-
-        -- preyCnt;
-        predator->Creature::updateHealth(worldAux[newPos].creature->getHealth());
-
-        delete worldAux[newPos].creature;
-
-        if (worldAux[cell].type == CreatureType::NOTHING) {
-          ++ predatorCnt;
-          worldAux[cell].type = CreatureType::PREDATOR;
-          worldAux[cell].creature = new Predator(*defaultPredator);
-        }
-      } 
-
-      worldAux[newPos].type = CreatureType::PREDATOR;
-      worldAux[newPos].creature = predator;
-    }
-    else {
-      // life transfer
-      -- predatorCnt;
-      worldAux[newPos].creature->updateHealth(predator->getHealth());
-      delete predator;
-    }
-
-    // clear for next frame
-    
-    world[cell].type = CreatureType::NOTHING;
-    world[cell].creature = nullptr;
-  }
+  std::swap(worldAux, world);
 }
 
 //==================================================  Functionality  ==================================================
-
-void Game::updateState() {
-
-  updatePreyState();
-  updatePredatorState();
-
-  std::swap(world, worldAux);
-}
 
 void Game::colorPixel(int &i, int &j, const sf::Color &color) {
   pixels[(i << 1) * (WIDTH << 1) + (j << 1)].color = color;
@@ -332,7 +286,7 @@ int Game::get1DPos(const int &i, const int &j) const {
   return i * WIDTH + j;
 }
 
-Vec2D Game::wrap(Vec2D pos) {
+Vec2D Game::wrap(Vec2D pos) const {
   if (pos.i < 0) pos.i = HEIGHT - 1;
   else if (pos.i >= HEIGHT) pos.i = 0;
   if (pos.j < 0) pos.j = WIDTH - 1;
@@ -351,6 +305,12 @@ Game::~Game() {
   delete[] world;
   delete[] worldAux;
   delete[] pixels;
+}
+
+Game::Cell& Game::Cell::operator = (const Game::Cell &other) {
+  this -> type = other.type;
+  this -> creature = other.creature;
+  return *this;
 }
 
 Game::Cell::~Cell() {

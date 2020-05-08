@@ -6,14 +6,13 @@
 #include "Vec2D.hpp"
 #include "Creature.hpp"
 
+enum class SimulationStage { CREATURE_DEAD, MOVE_CELL, LIFE_TRANSFER };
+
 class Game {
 public:
 
-  // TODO rezolva cu constructorii
   // TODO singleton
 
-  Game();
-  Game(int, int);
   Game(int, int, int, int, int, int);
 
   ~Game();
@@ -28,8 +27,8 @@ private:
     Cell();
     CreatureType type;
     Creature *creature;
+    Cell& operator = (const Cell&);
     ~Cell();
-    // TODO operator = 
   };
 
   bool endGame;
@@ -47,13 +46,15 @@ private:
 
   static const int ILLNESS_CHANCE = 7;
   static const int WIDTH = 600, HEIGHT = 400;
-  static const int NEW_POS_TRIES_THRESHOLD = 4;
+  static const int NEXT_POS_TRIES_THRESHOLD = 4;
 
   static constexpr double END_GAME_THRESHOLD = 15.0;
   static constexpr double NO_CREATURES_THRESOLD = 1.5;
 
   Prey* const defaultPrey;
   Predator* const defaultPredator;
+
+  static Cell nullCell;
 
   Cell *world, *worldAux;
   sf::Vertex *pixels;
@@ -63,8 +64,16 @@ private:
   void generateCreatures();
   void initEverything();
 
-  void updatePreyState();
-  void updatePredatorState();
+  int getNextCellIndex(const int&) const;
+
+  void addCreature(Cell&, CreatureType);
+  void removeCreature(Cell&);
+  bool notSurvive(const int&);
+  void chanceMakeIll(const int&);
+  void interact(const int&, const int&);
+  void transferLife(const int&, const int&);
+
+  void updateCell(const int&);
   void updateState();
 
   void colorPixel(int&, int&, const sf::Color&);
@@ -73,6 +82,5 @@ private:
   Vec2D get2DPos(const int&) const; 
   int get1DPos(const Vec2D&) const; 
   int get1DPos(const int&, const int&) const; 
-
-  Vec2D wrap(Vec2D);
+  Vec2D wrap(Vec2D) const;
 };
