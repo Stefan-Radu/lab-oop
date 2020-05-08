@@ -6,8 +6,6 @@
 #include "Vec2D.hpp"
 #include "Creature.hpp"
 
-enum class SimulationStage { CREATURE_DEAD, MOVE_CELL, LIFE_TRANSFER };
-
 class Game {
 public:
 
