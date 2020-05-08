@@ -13,13 +13,14 @@ public:
   virtual ~Creature() = 0;
 
   void updateHealth(int);
-  virtual void updateHealth() = 0;
-
+  void makeIll();
+  int getHealth() const;
   bool isDead() const; 
   bool isIll() const;
-  void makeIll();
+  bool canReproduce() const;
+
+  virtual void updateHealth() = 0;
   virtual void resetHealth() = 0;
-  int getHealth() const;
 
 protected:
   int health;
@@ -34,7 +35,6 @@ public:
   Prey(int, int);
   Prey(const Prey&);
 
-  bool canReproduce() const;
   void updateHealth() override;
   void resetHealth() override;
 };

@@ -17,6 +17,10 @@ bool Creature::isIll() const {
   return ill;
 }
 
+bool Creature::canReproduce() const {
+  return health >= MAX_HEALTH;
+}
+
 void Creature::makeIll() {
   ill = true;
 }
@@ -45,10 +49,6 @@ void Prey::updateHealth() {
   if (health > MAX_HEALTH) {
     health = MAX_HEALTH;
   }
-}
-
-bool Prey::canReproduce() const {
-  return health >= MAX_HEALTH;
 }
 
 void Prey::resetHealth() {
