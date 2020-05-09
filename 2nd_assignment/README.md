@@ -18,6 +18,6 @@ All the creatures eventually die and the game ends.
 
 You can:
 * start a new simulation by pressing N
-* quit by pressing q
+* quit by pressing Q
 
 ![Screenshot](./screeshots/ss.gif)
