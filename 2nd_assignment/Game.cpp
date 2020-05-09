@@ -4,11 +4,11 @@
 
 //==================================================  Initialization  ==================================================
 
-const sf::Color Game::GREEN(180, 255, 14, 51);
-const sf::Color Game::RED(217, 31, 39, 51);
-const sf::Color Game::PURPLE(201, 0, 184, 51);
-const sf::Color Game::ORANGE(201, 154, 0, 51);
-const sf::Color Game::CLEAR(0, 0, 0, 15);
+const sf::Color Game::GREEN(10, 166, 88, 17);
+const sf::Color Game::RED(194, 16, 16, 17);
+const sf::Color Game::PURPLE(140, 16, 194, 17);
+const sf::Color Game::ORANGE(207, 122, 10, 17);
+const sf::Color Game::CLEAR(0, 0, 0, 17);
 
 int Game::gameCount = 1;
 Game::Cell Game::nullCell = Game::Cell();
@@ -19,12 +19,16 @@ Game::Game():
   defaultPrey(new Prey(rand() % MAX_CREATURE_HEALTH + 1, rand() % MAX_CREATURE_HEALTH_TIC + 1)),
   defaultPredator(new Predator(rand() % MAX_CREATURE_HEALTH + 1, rand() % MAX_CREATURE_HEALTH_TIC + 1)) {
 
+  srand(time(0));
   initEverything();
   logDetails();
 }
 
 void Game::logDetails() const {
-  std::cerr << "\nInitialized game no. " << gameCount << " with:\n";
+
+  std::system("clear");
+
+  std::cerr << "Initialized game no. " << gameCount << " with:\n";
   std::cerr << "Prey percentage: " << PREY_PERCENTAGE << " / " << Game::CHANCE_MODULO << '\n';
   std::cerr << "Predator percentage: " << PREDATOR_PERCENTAGE << " / " << Game::CHANCE_MODULO << '\n';
   std::cerr << "Prey:\n" << *defaultPrey;
@@ -42,10 +46,12 @@ void Game::resetGame() {
   delete defaultPredator;
   defaultPredator = new Predator(rand() % MAX_CREATURE_HEALTH + 1, rand() % MAX_CREATURE_HEALTH_TIC + 1);
 
+  ++ gameCount;
   endGame = false;
-  noCreatures = false;
+  elapsedTime = 0.0;
 
   generateCreatures();
+  logDetails();
 }
 
 void Game::initEverything() {
@@ -53,7 +59,7 @@ void Game::initEverything() {
   srand(time(0));
 
   endGame = false;
-  noCreatures = false;
+  elapsedTime = 0.0;
 
   initWorld();
   initPixels();
@@ -80,6 +86,12 @@ void Game::initPixels() {
 
 void Game::generateCreatures() {
   for (int cell = 0; cell < WIDTH * HEIGHT; ++ cell ) {
+
+    if (world[cell].creature) {
+      delete world[cell].creature;
+      world[cell] = nullCell;
+    }
+
     int chance = rand() % CHANCE_MODULO;
     if (chance < PREY_PERCENTAGE) {
       world[cell].type = CreatureType::PREY;
@@ -232,6 +244,18 @@ void Game::display() {
   }
 
   window.draw(pixels, WIDTH * HEIGHT << 2, sf::Points);
+
+  sf::Text txt;
+  sf::Font font;
+  font.loadFromFile("./Assets/Peepo.ttf");
+  txt.setFont(font);
+  txt.setString("Press N to start a new simulation\n"
+                "Press Q to quit\n");
+  txt.setCharacterSize(16);
+  txt.setFillColor(sf::Color::White);
+  txt.setPosition(7, 7);
+  window.draw(txt);
+
   window.display();
 }
 
@@ -239,28 +263,19 @@ void Game::run() {
 
   window.clear(CLEAR);
   window.display();
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-  auto startTime = std::chrono::high_resolution_clock::now();
+  auto lastTime = std::chrono::high_resolution_clock::now();
 
   while (window.isOpen()) {
 
-    if (not endGame) {
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    elapsedTime += std::chrono::duration_cast < std::chrono::milliseconds > (currentTime - lastTime).count();
+    lastTime = currentTime;
 
-      auto currentTime = std::chrono::high_resolution_clock::now();
-      auto diff = std::chrono::duration_cast < std::chrono::seconds > (currentTime - startTime);
-
-      if (diff.count() > END_GAME_THRESHOLD){
-        defaultPrey->makeIll();
-        defaultPredator->makeIll();
-        endGame = true;
-      }
-    }
-
-    if (Creature::howMany == 2 and not noCreatures) {
-      // 2 because of default creatures
-      noCreatures = true;
-      startTime = std::chrono::high_resolution_clock::now();
+    if (not endGame and elapsedTime > END_GAME_THRESHOLD) {
+      defaultPrey->makeIll();
+      defaultPredator->makeIll();
+      endGame = true;
     }
 
     sf::Event event;
@@ -268,21 +283,19 @@ void Game::run() {
       if (event.type == sf::Event::Closed) {
         window.close();
       }
+      else if (event.type == sf::Event::KeyPressed) { 
+        if (event.key.code == sf::Keyboard::Q) {
+          window.close();
+        }
+        else if (event.key.code == sf::Keyboard::N) {
+          resetGame();
+        }
+      }
     }
 
     updateState();
     display();
-
-    if (noCreatures) {
-      auto currentTime = std::chrono::high_resolution_clock::now();
-      auto diff = std::chrono::duration_cast < std::chrono::seconds > (currentTime - startTime);
-      if (diff.count() > NO_CREATURES_THRESOLD) {
-        window.close();
-      }
-    }
   }
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
 Vec2D Game::get2DPos(const int &cell) const {

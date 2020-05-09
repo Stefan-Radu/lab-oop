@@ -28,7 +28,7 @@ private:
     ~Cell();
   };
 
-  bool endGame, noCreatures;
+  bool endGame;
 
   sf::RenderWindow window;
 
@@ -47,8 +47,9 @@ private:
   static const int ILLNESS_CHANCE = 7;
   static const int NEXT_POS_TRIES_THRESHOLD = 4;
 
-  static constexpr double END_GAME_THRESHOLD = 15.0;
-  static constexpr double NO_CREATURES_THRESOLD = 1.5;
+  double elapsedTime;
+  static constexpr double END_GAME_THRESHOLD = 15000.0;
+  static constexpr double NO_CREATURES_THRESOLD = 1500;
 
   Prey* defaultPrey;
   Predator* defaultPredator;

@@ -12,7 +12,7 @@ public:
   Creature(int, bool, int, int);
   virtual ~Creature();
 
-  static int howMany;
+  static int getCount();
 
   void updateHealth(int);
   void makeIll();
@@ -25,12 +25,16 @@ public:
   virtual void resetHealth() = 0;
 
 protected:
+
   int health;
   bool ill;
   const int MAX_HEALTH;
   const int HEALTH_TIC;
 
   friend std::ostream& operator << (std::ostream&, Creature&);
+
+private:
+  static int howMany;
 };
 
 class Prey: public Creature {

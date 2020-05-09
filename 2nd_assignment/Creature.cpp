@@ -13,6 +13,10 @@ Creature::Creature(int health, bool ill, int maxHealth, int healthTick):
   ++ howMany;
 }  
 
+int Creature::getCount() {
+  return Creature::howMany - 2;
+}
+
 bool Creature::isDead() const {
   return health <= 0;
 }
