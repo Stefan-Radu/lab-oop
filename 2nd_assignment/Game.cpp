@@ -24,6 +24,11 @@ Game::Game():
   logDetails();
 }
 
+Game& Game::getInstance() {
+  static Game game;
+  return game;
+}
+
 void Game::logDetails() const {
 
   std::system("clear");

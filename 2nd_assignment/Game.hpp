@@ -9,16 +9,24 @@
 class Game {
 public:
 
-  // TODO singleton
+  // deleted copy constructor and operator=
+  // to avoid additional instancese of the class
 
-  Game();
+  Game(const Game&) = delete;
+  Game& operator =(const Game&) = delete;
+
+  // access to the only instance of the class
+  static Game& getInstance();
+
   ~Game();
 
+  // start simulations
   void run();
 
-  static const int CHANCE_MODULO = 100;
-
 private:
+
+  // private constructor to avoid instantiation
+  Game();
 
   struct Cell {
     Cell();
@@ -39,8 +47,9 @@ private:
   static const sf::Color CLEAR;
 
   const int WIDTH = 600, HEIGHT = 400;
-  int PREY_PERCENTAGE = 33, PREDATOR_PERCENTAGE = 33;
+  int PREY_PERCENTAGE, PREDATOR_PERCENTAGE;
 
+  static const int CHANCE_MODULO = 100;
   static const int MAX_CREATURE_PERCENTAGE = 50;
   static const int MAX_CREATURE_HEALTH = 1000;
   static const int MAX_CREATURE_HEALTH_TIC = 100;
