@@ -4,8 +4,6 @@ The final goal of this automaton is to simulate a world inhabited by two types o
 * predators - displayed with red
 * prey - displayed with green
 
-![Screenshot 1](./screeshots/ss1.png)
-
 At each moment, every creature moves in a random direction.
 
 Prey is rewarded for staying alive. Thus, at each moment its health rises by a certain amount. If it reached a certain treshold, the prey reproduces.
@@ -16,6 +14,10 @@ After some time, illness starts spreading and all creatures perish into nothing.
 * prey becomes orange
 * predators become purple
 
-![Screenshot 2](./screeshots/ss2.png)
-
 All the creatures eventually die and the game ends.
+
+You can:
+* start a new simulation by pressing N
+* quit by pressing q
+
+![Screenshot](./screeshots/ss.gif)
