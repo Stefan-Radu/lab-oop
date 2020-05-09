@@ -247,7 +247,7 @@ void Game::display() {
 
   sf::Text txt;
   sf::Font font;
-  font.loadFromFile("./Assets/Peepo.ttf");
+  font.loadFromFile("./assets/Peepo.ttf");
   txt.setFont(font);
   txt.setString("Press N to start a new simulation\n"
                 "Press Q to quit\n");
