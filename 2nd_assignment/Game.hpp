@@ -46,7 +46,7 @@ private:
   static const sf::Color ORANGE;
   static const sf::Color CLEAR;
 
-  const int WIDTH = 600, HEIGHT = 400;
+  const int WIDTH, HEIGHT;
   int PREY_PERCENTAGE, PREDATOR_PERCENTAGE;
 
   static const int CHANCE_MODULO = 100;
@@ -69,6 +69,7 @@ private:
   Cell *world, *worldAux;
   sf::Vertex *pixels;
 
+  int userInput(const char*) const;
   void logDetails() const;
   void resetGame();
 

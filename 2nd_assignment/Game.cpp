@@ -14,6 +14,8 @@ int Game::gameCount = 1;
 Game::Cell Game::nullCell = Game::Cell();
 
 Game::Game():
+  WIDTH(userInput("Provide window width: ")),
+  HEIGHT(userInput("Provide window height: ")),
   PREY_PERCENTAGE(rand() % MAX_CREATURE_PERCENTAGE + 1),
   PREDATOR_PERCENTAGE(rand() % MAX_CREATURE_PERCENTAGE + 1),
   defaultPrey(new Prey(rand() % MAX_CREATURE_HEALTH + 1, rand() % MAX_CREATURE_HEALTH_TIC + 1)),
@@ -27,6 +29,41 @@ Game::Game():
 Game& Game::getInstance() {
   static Game game;
   return game;
+}
+
+int Game::userInput(const char *message) const {
+
+  int input;
+  bool notOK = true;
+
+  while (notOK) {
+
+    notOK = false;
+    std::cerr << message;
+
+    try {
+     std::cin >> input; 
+     if (input > 1001) {
+       throw -1;
+     }
+     else if (input <= 0) {
+       throw -2;
+     }
+    }
+    catch (int e) {
+      notOK = true;
+      switch (e) {
+        case -1:
+          std::cerr << "number too big\n";
+          break;
+        case -2:
+          std::cerr << "number too small\n";
+          break;
+      }
+    }
+  }
+
+  return input;
 }
 
 void Game::logDetails() const {
@@ -250,16 +287,16 @@ void Game::display() {
 
   window.draw(pixels, WIDTH * HEIGHT << 2, sf::Points);
 
-  sf::Text txt;
+  sf::Text text;
   sf::Font font;
   font.loadFromFile("./assets/Peepo.ttf");
-  txt.setFont(font);
-  txt.setString("Press N to start a new simulation\n"
+  text.setFont(font);
+  text.setString("Press N to start a new simulation\n"
                 "Press Q to quit\n");
-  txt.setCharacterSize(16);
-  txt.setFillColor(sf::Color::White);
-  txt.setPosition(7, 7);
-  window.draw(txt);
+  text.setCharacterSize((WIDTH / 32.0f));
+  text.setFillColor(sf::Color::White);
+  text.setPosition(7, 7);
+  window.draw(text);
 
   window.display();
 }
@@ -293,6 +330,18 @@ void Game::run() {
           window.close();
         }
         else if (event.key.code == sf::Keyboard::N) {
+
+          sf::Text text;
+          sf::Font font;
+          font.loadFromFile("./assets/Peepo.ttf");
+          text.setFont(font);
+          text.setString("N");
+          text.setCharacterSize(WIDTH / 4.0f);
+          text.setOrigin(text.getLocalBounds().width / 2.0f, text.getLocalBounds().height);
+          text.setPosition(WIDTH, HEIGHT);
+          text.setFillColor(sf::Color::White);
+          window.draw(text);
+
           resetGame();
         }
       }
